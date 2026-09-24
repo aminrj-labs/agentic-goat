@@ -137,11 +137,48 @@ def demonstrate_attack() -> None:
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Attack 1: external memory poisoning against AssistantOS."
+    )
+    cassette_group = parser.add_mutually_exclusive_group()
+    cassette_group.add_argument(
+        "--record", metavar="PATH", help="Answer with the live model and store the responses in PATH"
+    )
+    cassette_group.add_argument(
+        "--replay", metavar="PATH", help="Serve the responses stored in PATH; no model required"
+    )
+    args = parser.parse_args()
+
+    if args.record or args.replay:
+        from assistantos.orchestrator import LM_STUDIO_URL, _MODEL, set_cassette
+
+        from cassette import Cassette
+
+        args.cassette = Cassette(
+            args.record or args.replay,
+            "record" if args.record else "replay",
+            model=_MODEL,
+            endpoint=LM_STUDIO_URL,
+            lab="05-agentic-memory-attacks",
+        )
+        set_cassette(args.cassette)
+        print(f"[Cassette] {'record' if args.record else 'replay'} mode: {args.record or args.replay}")
+    else:
+        args.cassette = None
+
     inject_memory_entry()
-    print("\n  ▶  Start 'python exfil_server.py' in another terminal,")
-    print("     then press Enter to launch the victim session.")
-    try:
-        input("  Press Enter to continue... ")
-    except KeyboardInterrupt:
-        sys.exit(0)
+
+    if not (args.record or args.replay):
+        print("\n  ▶  Start 'python exfil_server.py' in another terminal,")
+        print("     then press Enter to launch the victim session.")
+        try:
+            input("  Press Enter to continue... ")
+        except KeyboardInterrupt:
+            sys.exit(0)
+
     demonstrate_attack()
+
+    if args.record:
+        args.cassette.finalize()

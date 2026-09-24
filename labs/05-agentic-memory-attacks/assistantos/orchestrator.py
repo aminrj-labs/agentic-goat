@@ -66,6 +66,18 @@ def _detect_model() -> str:
 # Resolved once at import time so all instances share the same model name
 _MODEL = _detect_model()
 
+# Optional record/replay cassette (see cassettes/README.md). When set, every
+# chat.completions.create call made through an Orchestrator client (including
+# the researcher and executor sub-agents, which share the client) is served
+# from the cassette instead of the live model.
+_CASSETTE = None
+
+
+def set_cassette(cassette):
+    """Attach a record/replay cassette to new Orchestrator instances."""
+    global _CASSETTE
+    _CASSETTE = cassette
+
 # ── Tool schema ───────────────────────────────────────────────────────────────
 
 _TOOLS = [
@@ -211,6 +223,14 @@ class Orchestrator:
 
         self.client = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
         self.model  = _MODEL
+
+        if _CASSETTE is not None:
+            real_create = self.client.chat.completions.create
+
+            def _create_via_cassette(**kwargs):
+                return _CASSETTE.complete(real_create, **kwargs)
+
+            self.client.chat.completions.create = _create_via_cassette
 
         # Initialise tools
         self.file_tool   = FileTool()
