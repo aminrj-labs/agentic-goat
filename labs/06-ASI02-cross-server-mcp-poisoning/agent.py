@@ -96,9 +96,20 @@ async def run_agent(
     model: str | None,
     max_turns: int,
     verbose: bool,
+    cassette=None,
 ) -> str:
     llm = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key="lm-studio")
-    selected_model = model or detect_model(llm)
+    if cassette is not None:
+        selected_model = model or DEFAULT_MODEL
+    else:
+        selected_model = model or detect_model(llm)
+
+    _create = llm.chat.completions.create
+
+    def _complete(**kwargs):
+        if cassette is not None:
+            return cassette.complete(_create, **kwargs)
+        return _create(**kwargs)
 
     all_tools: list[dict[str, Any]] = []
     tool_sessions: dict[str, ClientSession] = {}
@@ -155,7 +166,7 @@ async def run_agent(
             if verbose:
                 print(f"[Agent] Turn {turn + 1}/{max_turns}")
 
-            response = llm.chat.completions.create(
+            response = _complete(
                 model=selected_model,
                 messages=messages,
                 tools=api_tools,
@@ -211,11 +222,31 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", help="Override the LM Studio model id")
     parser.add_argument("--max-turns", type=int, default=DEFAULT_MAX_TURNS, help="Maximum agent-tool turns")
     parser.add_argument("--verbose", action="store_true", help="Print tool discovery and tool call traces")
+    cassette_group = parser.add_mutually_exclusive_group()
+    cassette_group.add_argument(
+        "--record", metavar="PATH", help="Answer with the live model and store the responses in PATH"
+    )
+    cassette_group.add_argument(
+        "--replay", metavar="PATH", help="Serve the responses stored in PATH; no model required"
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     arguments = parse_args()
+    if arguments.record or arguments.replay:
+        from cassette import Cassette
+
+        arguments.cassette = Cassette(
+            arguments.record or arguments.replay,
+            "record" if arguments.record else "replay",
+            model=arguments.model or DEFAULT_MODEL,
+            endpoint=LM_STUDIO_BASE_URL,
+            lab="06-ASI02-cross-server-mcp-poisoning",
+        )
+        print(f"[Cassette] {'record' if arguments.record else 'replay'} mode: {arguments.record or arguments.replay}")
+    else:
+        arguments.cassette = None
     asyncio.run(
         run_agent(
             arguments.server,
@@ -223,5 +254,8 @@ if __name__ == "__main__":
             model=arguments.model,
             max_turns=arguments.max_turns,
             verbose=arguments.verbose,
+            cassette=arguments.cassette,
         )
     )
+    if arguments.record:
+        arguments.cassette.finalize()
