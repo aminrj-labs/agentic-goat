@@ -49,6 +49,16 @@ def _detect_model() -> str:
 
 MODEL = _detect_model()
 
+# Optional record/replay cassette (see cassettes/README.md). When None the
+# pipeline talks to the live model exactly as before.
+_CASSETTE = None
+
+
+def set_cassette(cassette):
+    """Attach a record/replay cassette to this pipeline."""
+    global _CASSETTE
+    _CASSETTE = cassette
+
 # ── Embedding model (local — no API key) ───────────────────────────────────────
 embed_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
     model_name="all-MiniLM-L6-v2"
@@ -110,8 +120,6 @@ def generate(query: str, context_docs: list[str]) -> str:
     is placed into the LLM context with no sanitization or boundary markers.
     The LLM cannot distinguish between data and instructions.
     """
-    llm = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
-
     context = "\n\n---\n\n".join(context_docs)
 
     # VULNERABLE PROMPT: retrieved text and user query share the same context
@@ -127,13 +135,22 @@ USER QUESTION: {query}
 
 ANSWER:"""
 
-    response = llm.chat.completions.create(
-        model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=500,
-        temperature=0.1,
-    )
+    response = _complete(model=MODEL,
+                         messages=[{"role": "user", "content": prompt}],
+                         max_tokens=500,
+                         temperature=0.1)
     return response.choices[0].message.content
+
+
+def _complete(**kwargs):
+    if _CASSETTE is not None:
+        return _CASSETTE.complete(_live_create, **kwargs)
+    return _live_create(**kwargs)
+
+
+def _live_create(**kwargs):
+    llm = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
+    return llm.chat.completions.create(**kwargs)
 
 
 # ── Full RAG pipeline ──────────────────────────────────────────────────────────

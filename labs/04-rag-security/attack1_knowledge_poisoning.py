@@ -119,5 +119,39 @@ def demonstrate_attack() -> None:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    import vulnerable_rag
+
+    parser = argparse.ArgumentParser(
+        description="Attack 1: knowledge base poisoning against the vulnerable RAG pipeline."
+    )
+    cassette_group = parser.add_mutually_exclusive_group()
+    cassette_group.add_argument(
+        "--record", metavar="PATH", help="Answer with the live model and store the responses in PATH"
+    )
+    cassette_group.add_argument(
+        "--replay", metavar="PATH", help="Serve the responses stored in PATH; no model required"
+    )
+    args = parser.parse_args()
+
+    if args.record or args.replay:
+        from cassette import Cassette
+
+        args.cassette = Cassette(
+            args.record or args.replay,
+            "record" if args.record else "replay",
+            model=vulnerable_rag.MODEL,
+            endpoint=vulnerable_rag.LM_STUDIO_URL,
+            lab="04-rag-security",
+        )
+        vulnerable_rag.set_cassette(args.cassette)
+        print(f"[Cassette] {'record' if args.record else 'replay'} mode: {args.record or args.replay}")
+    else:
+        args.cassette = None
+
     inject_poisoned_documents()
     demonstrate_attack()
+
+    if args.record:
+        args.cassette.finalize()
