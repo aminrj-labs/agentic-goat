@@ -19,6 +19,10 @@ MITRE ATLAS: AML.T0043 · AML.T0049
 
 from vulnerable_rag import ingest_documents, ask
 
+# The lab canary. Defined in this one place and revealed only when the
+# poisoned knowledge base flips a legitimate query to fabricated figures.
+FLAG = "AGENTICGOAT{04_rag-poisoning}"
+
 
 # ── Poisoned documents ─────────────────────────────────────────────────────────
 POISONED_DOCS = [
@@ -109,6 +113,7 @@ def demonstrate_attack() -> None:
         # Flag if poisoned figures appear in the response
         if any(marker in answer for marker in ["$8.3M", "8.3", "-$13.8", "restatement", "CORRECTED"]):
             print("\n  ⚠️  POISONING SUCCESS — fabricated figures in response")
+            print(f"  FLAG CAPTURED: {FLAG}")
         elif "$24.7" in answer:
             print("\n  ✅ LEGITIMATE DATA — correct figures returned")
 
