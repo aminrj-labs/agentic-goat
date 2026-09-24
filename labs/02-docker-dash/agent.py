@@ -17,6 +17,15 @@ llm = OpenAI(base_url=LLM_BASE_URL, api_key=API_KEY)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+_cassette = None
+_create = llm.chat.completions.create
+
+
+def _complete(**kwargs):
+    if _cassette is not None:
+        return _cassette.complete(_create, **kwargs)
+    return _create(**kwargs)
+
 
 def build_server_params(server_arg: str) -> StdioServerParameters:
     """Resolve server arg to StdioServerParameters.
@@ -106,7 +115,7 @@ async def run_agent(server_scripts: list[str], user_prompt: str):
 
         for turn in range(MAX_TURNS):
             print(f"[Agent] Turn {turn + 1}/{MAX_TURNS}")
-            response = llm.chat.completions.create(
+            response = _complete(
                 model=MODEL,
                 messages=messages,
                 tools=api_tools,
@@ -146,7 +155,59 @@ async def run_agent(server_scripts: list[str], user_prompt: str):
         # AsyncExitStack cleanly tears down all sessions on exit
 
 
+def _split_flags(argv):
+    record = None
+    replay = None
+    positional = []
+    i = 0
+    while i < len(argv):
+        if argv[i] in ("--record", "--replay"):
+            if i + 1 >= len(argv):
+                print(f"Missing path after {argv[i]}", file=sys.stderr)
+                sys.exit(2)
+            if argv[i] == "--record":
+                record = argv[i + 1]
+            else:
+                replay = argv[i + 1]
+            i += 2
+            continue
+        if argv[i] in ("-h", "--help"):
+            print(
+                'Usage: python3 agent.py [--record PATH | --replay PATH]\n'
+                '       server1 [server2 ...] "user prompt"\n\n'
+                "  --record PATH   live model answers; responses stored in PATH\n"
+                "  --replay PATH  serve PATH in order; no model required"
+            )
+            sys.exit(0)
+        positional.append(argv[i])
+        i += 1
+    return record, replay, positional
+
+
 if __name__ == "__main__":
-    servers = sys.argv[1:-1]  # all args except last
-    prompt = sys.argv[-1]  # last arg is the user prompt
+    record, replay, positional = _split_flags(sys.argv[1:])
+    if record and replay:
+        print("Use --record PATH or --replay PATH, not both")
+        sys.exit(2)
+    if not positional:
+        print(
+            'Usage: python3 agent.py [--record PATH | --replay PATH] '
+            'server1 [server2 ...] "user prompt"'
+        )
+        sys.exit(2)
+    servers = positional[:-1]  # all args except last
+    prompt = positional[-1]  # last arg is the user prompt
+    if record or replay:
+        from cassette import Cassette
+
+        _cassette = Cassette(
+            record or replay,
+            "record" if record else "replay",
+            model=MODEL,
+            endpoint=LLM_BASE_URL,
+            lab="02-docker-dash",
+        )
+        print(f"[Cassette] {'record' if record else 'replay'} mode: {record or replay}")
     asyncio.run(run_agent(servers, prompt))
+    if record:
+        _cassette.finalize()
