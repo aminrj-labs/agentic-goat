@@ -1,17 +1,54 @@
-# MCP Attack Labs
+# AgenticGoat
 
-Hands-on, locally reproducible security labs for **Model Context Protocol (MCP)
-and agentic AI systems**. Each lab stages a real attack technique against a
-purpose-built vulnerable target, shows it working end to end, and pairs it with
-the defense that stops it.
+The vulnerable-by-design toolkit for learning agentic AI security by breaking and
+defending it. Each lab stages a real attack technique against a purpose-built
+vulnerable target, shows it working end to end, and pairs it with the control
+that stops it. Self-hostable anywhere, runs on a local model with no API keys,
+and mapped scenario-for-scenario to the
+[OWASP Top 10 for Agentic Applications](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications/)
+and the [OWASP MCP Top 10](https://owasp.org/www-project-mcp-top-10/). From a
+single poisoned tool description to a five-stage multi-agent kill chain, every
+attack is paired with the defense that stops it.
 
 Everything runs on your own machine against a local model. **No cloud APIs, no
 API keys, no data leaves your laptop.**
 
-> These labs map to the [OWASP Top 10 for Agentic Applications / Agentic Security
-> Initiative](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
-> and [MITRE ATLAS](https://atlas.mitre.org/). Framework mappings are noted inside
-> each lab.
+> **Not an OWASP project.** AgenticGoat is mapped to the OWASP Top 10 for
+> Agentic Applications, the OWASP MCP Top 10, and [MITRE ATLAS](https://atlas.mitre.org/)
+> so the labs line up with the frameworks people already cite. It is an
+> independent, vendor-neutral project and is not sponsored, endorsed, or
+> affiliated with OWASP or MITRE.
+
+---
+
+## Agentic and MCP Top 10 crosswalk
+
+The table below is the map. It links every covered risk to the lab that teaches
+it, and it states the status of each row honestly. `Planned` rows are the
+backlog, marked so the map stays truthful. This table is the shareable artifact:
+it is the "when I read ASI03, there is a Goat scenario waiting" crosswalk.
+
+| ASI / MCP | Risk | Lab | Status |
+|---|---|---|---|
+| ASI01 | Agent Goal Hijack | Indirect prompt injection via tool output and RAG ([Lab 04](./labs/04-rag-security/)) | Complete |
+| ASI02 / MCP03 | Tool Misuse and Exploitation, Tool Poisoning | Poisoned tool description to silent file read and exfil ([Lab 01](./labs/01-mcp-tool-poisoning/)); cross-server poisoning ([Lab 06](./labs/06-ASI02-cross-server-mcp-poisoning/)) | Complete |
+| ASI02 / MCP03 | Cross-server shadowing | One server's description hijacks another's tool ([Lab 01b](./labs/01b-cross-server-shadowing/)) | Partial |
+| ASI03 / MCP01, MCP02, MCP07 | Identity and Privilege Abuse | Over-broad capability, token theft from context, scope creep | Planned |
+| ASI04 / MCP04 | Agentic Supply Chain | Container-metadata injection ([Lab 02](./labs/02-docker-dash/)); MCP-registry angle | Partial |
+| ASI05 / MCP05 | Unexpected Code Execution | Agent-generated code, command injection through a tool | Planned |
+| ASI06 | Memory and Context Poisoning | Persistent memory poisoning, cross-session persistence ([Lab 05](./labs/05-agentic-memory-attacks/)) | Complete |
+| ASI07 / MCP10 | Insecure Inter-Agent Communication | Forged A2A message and agent-card spoofing (part of [Lab 07](./labs/07-mcp-to-a2a-kill-chain/)) | Complete |
+| ASI08 | Cascading Failures | Blast-radius propagation across an orchestration chain | Planned |
+| ASI09 | Human-Agent Trust Exploitation | Agent recommends a harmful action a human approves | Planned |
+| ASI10 | Rogue Agents | Persistence after server removal (tail of [Lab 07](./labs/07-mcp-to-a2a-kill-chain/)) | Complete |
+| MCP08 | Lack of Audit and Telemetry | Defensive: the kill chain with tool-call logging | Planned |
+| MCP09 | Shadow MCP Servers | Unsanctioned server joins, governance control stops it | Planned |
+| The chain | Full MCP-to-A2A kill chain | Five stages, one control breaks it ([Lab 07](./labs/07-mcp-to-a2a-kill-chain/), flagship) | Complete |
+
+[Lab 03](./labs/03-red-team-assessment/) is a methodology lab (automated red
+teaming with PyRIT and Promptfoo) rather than a single mapped scenario. It
+exercises several rows of this map against one target and is listed in the lab
+table below.
 
 ---
 
@@ -40,35 +77,25 @@ By using this repository you agree to use it lawfully and ethically. See
 ## Who this is for
 
 Security engineers, red/blue teamers, MCP and agent developers, and researchers
-who want to *see* how agentic attacks actually work — not just read about them —
-and understand the controls that defeat them.
+who want to *see* how agentic attacks actually work, not just read about them,
+and understand the controls that defeat them. Vendor-neutral by design: no lab
+routes you to a product, and the scenario that matters most ([Lab 07])
+demonstrates the control that breaks the chain, not a tool that sells it.
 
 ---
 
 ## Labs
 
-| # | Lab | What it demonstrates | Status |
-|---|-----|----------------------|--------|
-| 01 | [MCP Tool Poisoning](./labs/01-mcp-tool-poisoning/) | Hidden instructions in an MCP tool description → silent file read + exfiltration | ✅ Complete |
-| 01b | [Cross-Server Shadowing](./labs/01b-cross-server-shadowing/) | One MCP server's tool description "shadows" another server's tool to hijack it | 🚧 Work in progress |
-| 02 | [DockerDash](./labs/02-docker-dash/) | Prompt injection via Docker image labels → container destruction + inventory exfil | ✅ Complete |
-| 03 | [Red Team Assessment](./labs/03-red-team-assessment/) | Automated agentic red-teaming with PyRIT + Promptfoo (crescendo exfil, TAP tool abuse) | ✅ Complete |
-| 04 | [RAG Security](./labs/04-rag-security/) | Knowledge-base poisoning · indirect prompt injection · cross-tenant data leakage | ✅ Complete |
-| 05 | [Agentic Memory Attacks](./labs/05-agentic-memory-attacks/) | Persistent memory poisoning · cross-agent trust abuse · context-window overflow | ✅ Complete |
-| 06 | [Cross-Server MCP Poisoning](./labs/06-ASI02-cross-server-mcp-poisoning/) | One malicious MCP server steers the agent into abusing a second, trusted server | ✅ Complete |
-| 07 | [**MCP → A2A Kill Chain**](./labs/07-mcp-to-a2a-kill-chain/) | **Flagship.** Five-stage chain across the MCP→A2A trust boundary: tool poisoning → rogue A2A registration → routing hijack → lateral movement → persistence after server removal. Each of three controls provably breaks it at a specific stage. | ✅ Complete |
-
-**Status legend:** ✅ Complete & runnable · 🚧 Work in progress (partial) · 🔨 In
-active development · 🗓 Planned. Status is stated honestly at the top of each
-lab's README, and per-stage where a lab is multi-stage. Nothing here is presented
-as working unless it runs.
-
-> **Start with the flagship (Lab 07).** It runs end to end on the standard
-> library alone — `cd labs/07-mcp-to-a2a-kill-chain && python3 run_chain.py` —
-> and is the one lab where you can watch a single control break the whole chain:
-> `python3 run_chain.py --defended`. It carries the tool-description-poisoning
-> primitive from Labs 01 and 06 across the agent-to-agent trust boundary, which
-> is where the A2A protocol hands the trust decisions to the implementer.
+| # | Lab | What it demonstrates | Model class | Status |
+|---|-----|----------------------|-------------|--------|
+| 01 | [MCP Tool Poisoning](./labs/01-mcp-tool-poisoning/) | Hidden instructions in an MCP tool description, silent file read and exfiltration | Model-dependent (replay available) | Complete |
+| 01b | [Cross-Server Shadowing](./labs/01b-cross-server-shadowing/) | One MCP server's tool result "shadows" another server's tool to hijack it | Model-dependent | Partial |
+| 02 | [DockerDash](./labs/02-docker-dash/) | Prompt injection via Docker image labels, container destruction and inventory exfil | Model-dependent (replay available) | Complete |
+| 03 | [Red Team Assessment](./labs/03-red-team-assessment/) | Automated agentic red-teaming with PyRIT and Promptfoo (crescendo exfil, TAP tool abuse) | Model-dependent (methodology) | Complete |
+| 04 | [RAG Security](./labs/04-rag-security/) | Knowledge-base poisoning, indirect prompt injection, cross-tenant data leakage | Model-dependent (replay available) | Complete |
+| 05 | [Agentic Memory Attacks](./labs/05-agentic-memory-attacks/) | Persistent memory poisoning, cross-agent trust abuse, context-window overflow | Model-dependent (replay available) | Complete |
+| 06 | [Cross-Server MCP Poisoning](./labs/06-ASI02-cross-server-mcp-poisoning/) | One malicious MCP server steers the agent into abusing a second, trusted server | Model-dependent (replay available) | Complete |
+| 07 | [MCP to A2A Kill Chain](./labs/07-mcp-to-a2a-kill-chain/) | **Flagship.** Five-stage chain across the MCP to A2A trust boundary: tool poisoning, rogue A2A registration, routing hijack, lateral movement, persistence after server removal. Each of three controls provably breaks it at a specific stage. | Model-independent | Complete |
 
 ---
 
@@ -95,13 +122,16 @@ Common to every lab:
 
 - **Python 3.11+**
 - A **local OpenAI-compatible LLM endpoint** with tool/function calling. Either:
-  - **[Ollama](https://ollama.com/)** (default) — serves on `http://localhost:11434/v1`
-  - **[LM Studio](https://lmstudio.ai/)** — serves on `http://localhost:1234/v1`
+  - **[Ollama](https://ollama.com/)** (default): serves on `http://localhost:11434/v1`
+  - **[LM Studio](https://lmstudio.ai/)**: serves on `http://localhost:1234/v1`
 - **Node.js 18+** (labs that use npm-based MCP servers or Promptfoo)
 
 A capable instruction model with reliable function calling. `qwen2.5-7b-instruct`
 is the baseline; some attacks only comply with a stronger model such as
 `gpt-oss-20b`. Larger models generally reproduce the attacks more reliably.
+
+Model-independent labs (Lab 07 today) need none of this. They run live and
+deterministic on the Python standard library, with no model and no download.
 
 ### Selecting your backend
 
@@ -109,7 +139,7 @@ Every agent reads its endpoint from environment variables, so you can point a la
 at either backend without editing code:
 
 ```bash
-# Ollama (default — nothing to set)
+# Ollama (default: nothing to set)
 # LM Studio:
 export LLM_BASE_URL="http://localhost:1234/v1"
 export MODEL="qwen2.5-7b-instruct"   # or the model id your backend exposes
@@ -119,7 +149,7 @@ export MODEL="qwen2.5-7b-instruct"   # or the model id your backend exposes
 
 ## Quick start (fastest working attack)
 
-Lab 06 has the smoothest end-to-end run — two terminals and a Makefile.
+Lab 06 has the smoothest end-to-end run, two terminals and a Makefile.
 
 ```bash
 cd labs/06-ASI02-cross-server-mcp-poisoning
@@ -128,10 +158,10 @@ source venv/bin/activate
 make verify           # check your local LLM + function calling
 make seed             # plant synthetic "sensitive" notes in the victim server
 
-# Terminal 1 — attacker's receiver
+# Terminal 1: attacker's receiver
 make exfil
 
-# Terminal 2 — vulnerable agent
+# Terminal 2: vulnerable agent
 make attack
 ```
 
@@ -139,39 +169,49 @@ You'll watch the agent answer a harmless weather question while silently leaking
 the victim server's notes to the attacker's listener in Terminal 1.
 
 New to the topic? **Lab 01** is the gentlest introduction to the core primitive
-(a poisoned tool description) — start there for the "why," then come back here for
+(a poisoned tool description), start there for the "why," then come back here for
 the "how far it goes."
+
+Want to run the flagship with zero setup, no model, and no GPU? **Lab 07** runs
+end to end on the standard library alone.
+
+```bash
+cd labs/07-mcp-to-a2a-kill-chain
+make run        # undefended: five stages, HR data exfiltrated (exit 1)
+make defended   # all controls on: chain breaks at stage 2 (exit 0)
+make test       # proves the above
+```
 
 ---
 
 ## Repository layout
 
 ```
+README.md              # paragraph + crosswalk + "Try it in your browser"
+LINEAGE.md             # seeded from mcp-attack-labs, divergence policy
+CONTRIBUTING.md        # requires the scenario contract, a model class, honest status
+INVENTORY.md           # v1 baseline (entry points, deps, success signals)
+LICENSE
 labs/
-  00-template/     scaffolding for a new lab (copy this to start one)
-  01-.../          each lab: README + runnable code + defenses + write-up
-  ...
+  00-template/         # the scenario contract as a fill-in scaffold
+  01-.../              # each lab: README + runnable code + defenses + write-up
+  ...                  # model-dependent labs also carry cassettes/ for replay
+killercoda/            # zero-install front door (Lab 07, Lab 01)
+.devcontainer/         # "Open in Codespaces"
+docs/                  # GitHub Pages: the static trace viewer
 ```
-
-Every lab follows the same structure so you always know where to look:
-
-1. **What it demonstrates** — the attack and why it works
-2. **Prerequisites** — what you need beyond the common set
-3. **Setup / run** — copy-paste steps
-4. **Expected outcome** — what success looks like
-5. **Defense / mitigation** — the control that stops it
 
 ---
 
 ## Adding a lab
 
-Copy `labs/00-template/`, fill in the README against the five sections above, add
-your code and its defense, and append a row to the table above with an honest
-status. See [CONTRIBUTING.md](./CONTRIBUTING.md).
+Copy `labs/00-template/`, fill in the README against the scenario contract in
+`CONTRIBUTING.md`, add your code and its defense, declare the model class, and
+append a row to the crosswalk and the table above with an honest status.
 
 ---
 
 ## License
 
-[MIT](./LICENSE) — for educational and authorized-testing use. The responsible-use
+[MIT](./LICENSE): for educational and authorized-testing use. The responsible-use
 expectations above are part of using this project.
