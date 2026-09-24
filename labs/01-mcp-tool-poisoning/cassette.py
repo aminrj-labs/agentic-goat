@@ -67,7 +67,7 @@ class _Message:
         self.name = None
         self.refusal = None
 
-    def model_dump(self):
+    def model_dump(self, **params):
         out = {"role": "assistant", "content": self.content}
         if self.tool_calls:
             out["tool_calls"] = [
@@ -81,6 +81,8 @@ class _Message:
                 }
                 for tc in self.tool_calls
             ]
+        if params.get("exclude_none"):
+            out = {key: value for key, value in out.items() if value is not None}
         return out
 
 
