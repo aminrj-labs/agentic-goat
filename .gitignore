@@ -26,3 +26,5 @@
 # Lab runtime artifacts (regenerated on each run; not source)
 **/whatsapp_stub.log
 **/venv/
+labs/03-red-team-assessment/email_log.txt
+labs/03-red-team-assessment/sandbox/docs/
