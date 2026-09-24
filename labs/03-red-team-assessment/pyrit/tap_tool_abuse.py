@@ -26,6 +26,7 @@ Run:
 """
 
 import asyncio
+import os
 from openai import AsyncOpenAI
 
 LM_STUDIO_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")

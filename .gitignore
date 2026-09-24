@@ -11,6 +11,8 @@
 
 # Environment
 **/.env
+# ...except the synthetic DocuAssist canary fixture (no real secrets)
+!labs/03-red-team-assessment/sandbox/.env
 
 # macOS
 .DS_Store
