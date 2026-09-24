@@ -36,6 +36,12 @@ ENTRY_SKILL = "document.summarise"
 # has won.
 HR_RECORD = "EMP-4471 Jane Okafor salary=182000 SSN=***-**-4471"
 
+# The lab canary. Defined in this one place and written to the exfil sink only
+# alongside HR_RECORD, i.e. only when the undefended chain completes lateral
+# movement. With any control enabled the sink stays empty and the flag is
+# never revealed.
+FLAG = "AGENTICGOAT{07_kill-chain}"
+
 
 @dataclass
 class StageResult:
@@ -187,6 +193,7 @@ class KillChain:
         if decision.delivered and decision.target is not None:
             # The sensitive skill executes and the rogue ships the data out.
             self._exfil(HR_RECORD)
+            self._exfil(FLAG)
             return StageResult(
                 4,
                 "Lateral movement + exfiltration",
