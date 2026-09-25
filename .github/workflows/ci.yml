@@ -135,7 +135,7 @@ jobs:
             --replay cassettes/phase5-doc-injection.json
           kill $EXFIL_PID
           grep -q "Subject: Audit Complete" email_log.txt
-          grep -q '"type": "email"' exfil.out
+          grep -q "Type.*: email" exfil.out
           echo "Lab 03 replay: audit email reached the live exfil listener"
 
       - name: Lab 04 - cassette integrity (no chromadb in CI)
