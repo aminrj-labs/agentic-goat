@@ -99,6 +99,28 @@ demonstrates the control that breaks the chain, not a tool that sells it.
 
 ---
 
+## Try it in your browser
+
+Zero install. No GPU. No API keys. Three tiers, from "watch in 30 seconds" to
+"run it yourself."
+
+| Tier | What | How |
+|---|---|---|
+| **F0, Watch** | Side-by-side attack and defended traces from Lab 07, annotated with why each step happened. | [**Static trace viewer**](./docs/index.html) -- no sign-in, no sandbox |
+| **F1, Do** | Hands-on Killercoda scenarios: the kill chain (live deterministic) and tool poisoning (replay against live plumbing). | [**Lab 07: MCP to A2A Kill Chain**](killercoda/07-kill-chain/) -- five stages, HR data exfiltrated, then broken by controls |
+| | | [**Lab 01: MCP Tool Poisoning**](killercoda/01-tool-poisoning/) -- poisoned tool description, silent file read, exfiltration |
+| **F2, Prove** | Point your own MCP client or local LLM at the real vulnerable servers. | "Open in Codespaces" badge below, then `cd labs/... && make attack` |
+
+> **Relevance guarantee.** The vulnerable components (MCP servers, exfil receivers,
+> canaries) are the real, unmodified lab code. For model-dependent labs, only the
+> model's inference is pre-recorded in a cassette captured from a real susceptible
+> model (gpt-oss-20b). The exploit's side effects are produced live and confirmed by
+> the canary. F2 lets anyone reproduce the whole thing against their own real model.
+
+[![Open in Codespaces](https://img.shields.io/badge/Open_in_Codespaces-0078D6?style=flat&logo=visualstudiocode&logoColor=white)](https://codespaces.new/aminrj-labs/agentic-goat?devcontainer=.devcontainer/devcontainer.json)
+
+---
+
 ## Attack surface coverage
 
 ```
