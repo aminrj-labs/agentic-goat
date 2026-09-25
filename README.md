@@ -107,8 +107,8 @@ Zero install. No GPU. No API keys. Three tiers, from "watch in 30 seconds" to
 | Tier | What | How |
 |---|---|---|
 | **F0, Watch** | Side-by-side attack and defended traces from Lab 07, annotated with why each step happened. | [**Static trace viewer**](./docs/index.html) -- no sign-in, no sandbox |
-| **F1, Do** | Hands-on Killercoda scenarios: the kill chain (live deterministic) and tool poisoning (replay against live plumbing). | [**Lab 07: MCP to A2A Kill Chain**](killercoda/07-kill-chain/) -- five stages, HR data exfiltrated, then broken by controls |
-| | | [**Lab 01: MCP Tool Poisoning**](killercoda/01-tool-poisoning/) -- poisoned tool description, silent file read, exfiltration |
+| **F1, Do** | Hands-on Killercoda scenarios: the kill chain (live deterministic) and tool poisoning (replay against live plumbing). | [**Lab 07: MCP to A2A Kill Chain**](https://killercoda.com/aminrj-labs/course/agentic-goat/07-kill-chain) -- five stages, HR data exfiltrated, then broken by controls |
+| | | [**Lab 01: MCP Tool Poisoning**](https://killercoda.com/aminrj-labs/course/agentic-goat/01-tool-poisoning) -- poisoned tool description, silent file read, exfiltration |
 | **F2, Prove** | Point your own MCP client or local LLM at the real vulnerable servers. | "Open in Codespaces" badge below, then `cd labs/... && make attack` |
 
 > **Relevance guarantee.** The vulnerable components (MCP servers, exfil receivers,

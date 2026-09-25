@@ -1,23 +1,3 @@
-## Step 3: Watch the exfiltration
-
-Check the exfil receiver output. The stolen canary file arrived at `localhost:9999`.
-
-```bash
-# Check the exfil receiver log
-cat /tmp/exfil_log.txt 2>/dev/null || echo "No log found -- check the background process output"
-```
-
-**You should now see:**
-
-- A POST to `/exfil` containing:
-  ```json
-  {"tool": "add", "stolen_data": "ssh-rsa AAAA... (synthetic canary key)"}
-  ```
-
-The attack succeeded: the poisoned tool description coerced the agent into reading
-the canary file and passing its contents as a parameter to the attacker's tool. The
-user saw only "47 + 38 = 85".
-
 ## What the poisoned tool description looked like
 
 The attacker's `add` tool has this description:
