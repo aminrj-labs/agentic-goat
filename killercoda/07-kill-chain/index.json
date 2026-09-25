@@ -1,0 +1,31 @@
+{
+  "title": "MCP to A2A Kill Chain — AgenticGoat",
+  "details": {
+    "intro": {
+      "text": "intro.md"
+    },
+    "steps": [
+      {
+        "title": "Run the undefended kill chain",
+        "text": "step1.md"
+      },
+      {
+        "title": "Run with all controls enabled",
+        "text": "step2.md"
+      },
+      {
+        "title": "Run the test suite",
+        "text": "step3.md"
+      }
+    ],
+    "finish": {
+      "text": "finish.md"
+    }
+  },
+  "backend": {
+    "imageid": "ubuntu"
+  },
+  "interface": {
+    "layout": "ide"
+  }
+}

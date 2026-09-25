@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgenticGoat — Trace Viewer: MCP to A2A Kill Chain</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --yellow: #d29922;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+    padding: 2rem; max-width: 1400px; margin: 0 auto;
+  }
+  h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+  h2 { font-size: 1.3rem; margin: 1.5rem 0 0.75rem; color: var(--accent); }
+  h3 { font-size: 1.1rem; margin: 1rem 0 0.5rem; }
+  p, li { color: var(--text); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .subtitle { color: var(--muted); margin-bottom: 1.5rem; }
+  .badge {
+    display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600; vertical-align: middle;
+  }
+  .badge-green { background: #238636; color: #fff; }
+  .badge-red { background: #8b0000; color: #fff; }
+  .badge-yellow { background: #9e6a03; color: #fff; }
+  .viewers { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
+  @media (max-width: 900px) { .viewers { grid-template-columns: 1fr; } }
+  .viewer {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.25rem;
+  }
+  .viewer h2 { margin-top: 0; }
+  .stage {
+    border-left: 3px solid var(--border); padding: 0.5rem 0 0.5rem 1rem;
+    margin: 0.75rem 0; position: relative;
+  }
+  .stage::before {
+    content: attr(data-num); position: absolute; left: -0.85rem; top: 0.5rem;
+    width: 1.4rem; height: 1.4rem; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; background: var(--border); color: var(--text);
+  }
+  .stage.success { border-left-color: var(--green); }
+  .stage.success::before { background: var(--green); color: #000; }
+  .stage.fail { border-left-color: var(--red); }
+  .stage.fail::before { background: var(--red); color: #fff; }
+  .stage .name { font-weight: 600; }
+  .stage .asi { color: var(--muted); font-size: 0.85rem; }
+  .stage .detail { font-size: 0.9rem; margin-top: 0.25rem; color: var(--text); }
+  .verdict {
+    margin-top: 1rem; padding: 0.75rem; border-radius: 6px;
+    font-weight: 600; text-align: center;
+  }
+  .verdict.compromised { background: #8b000033; border: 1px solid var(--red); color: var(--red); }
+  .verdict.secure { background: #23863633; border: 1px solid var(--green); color: var(--green); }
+  .diagram { margin: 1.5rem 0; }
+  .diagram svg { width: 100%; height: auto; }
+  .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0 1rem; font-size: 0.85rem; }
+  .legend span { display: flex; align-items: center; gap: 0.35rem; }
+  .legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .nav { margin-bottom: 1.5rem; }
+  .nav a { margin-right: 1rem; }
+  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="https://github.com/aminrj-labs/agentic-goat">&#x1F4C8; AgenticGoat</a>
+  <a href="https://killercoda.com/aminrj-labs/course/agentic-goat/07-kill-chain">Killercoda: Run it live</a>
+  <a href="https://github.com/aminrj-labs/agentic-goat/blob/main/labs/07-mcp-to-a2a-kill-chain/README.md">Lab 07 README</a>
+</div>
+
+<h1>MCP to A2A Kill Chain <span class="badge badge-yellow">Trace Viewer</span></h1>
+<p class="subtitle">
+  Side-by-side attack and defended traces from Lab 07.
+  These are <strong>real, deterministic runs</strong> against the unmodified lab code --
+  no simulation, no model, no GPU.
+</p>
+
+<div class="legend">
+  <span><span class="dot" style="background:var(--green)"></span> Attacker succeeded</span>
+  <span><span class="dot" style="background:var(--red)"></span> Control broke the chain</span>
+  <span><span class="dot" style="background:var(--border)"></span> Not reached</span>
+</div>
+
+<div class="viewers">
+  <!-- ATTACK VIEWER -->
+  <div class="viewer">
+    <h2><span class="badge badge-red">VULNERABLE</span> Undefended Run</h2>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">Exit code 1 -- HR data exfiltrated</p>
+
+    <div class="stage success" data-num="1">
+      <div class="name">Tool description poisoning</div>
+      <div class="asi">ASI-02 / ASI-01</div>
+      <div class="detail">Poisoned tool description instructs host to register a "helper" peer and delegate the document.summarise skill.</div>
+    </div>
+    <div class="stage success" data-num="2">
+      <div class="name">Rogue A2A agent registration</div>
+      <div class="asi">ASI-07</div>
+      <div class="detail">Attacker registers "summariser-helper" with unsigned card -- accepted because no signature verification is enforced.</div>
+    </div>
+    <div class="stage success" data-num="3">
+      <div class="name">Routing hijack</div>
+      <div class="asi">ASI-01</div>
+      <div class="detail">doc-assistant delegates document.summarise; router's most-recent match is the rogue. Legitimate work routed to attacker.</div>
+    </div>
+    <div class="stage success" data-num="4">
+      <div class="name">Lateral movement + exfiltration</div>
+      <div class="asi">ASI-07 / ASI-08</div>
+      <div class="detail">Rogue invokes hr.read -> exfiltrated: EMP-4471 Jane Okafor salary=182000 SSN=***-**-4471. FLAG CAPTURED: AGENTICGOAT{07_kill-chain}</div>
+    </div>
+    <div class="stage success" data-num="5">
+      <div class="name">Persistence after server removal</div>
+      <div class="asi">ASI-06</div>
+      <div class="detail">Malicious MCP server removed; rogue registration persists in the A2A registry and remains routable.</div>
+    </div>
+
+    <div class="verdict compromised">&#x26A0; COMPROMISED -- All five stages succeeded. HR data and flag reached the exfil sink.</div>
+  </div>
+
+  <!-- DEFENDED VIEWER -->
+  <div class="viewer">
+    <h2><span class="badge badge-green">DEFENDED</span> All Controls On</h2>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.5rem;">Exit code 0 -- chain broken at stage 2</p>
+
+    <div class="stage success" data-num="1">
+      <div class="name">Tool description poisoning</div>
+      <div class="asi">ASI-02 / ASI-01</div>
+      <div class="detail">Poisoned tool description instructs host to register a "helper" peer. The brain still follows the instruction -- the entry point is the same.</div>
+    </div>
+    <div class="stage fail" data-num="2">
+      <div class="name">Rogue A2A agent registration</div>
+      <div class="asi">ASI-07</div>
+      <div class="detail">Control 1 (signed cards): "summariser-helper" has no valid signature from the org trust anchor. Registration rejected. <strong>Chain broken.</strong></div>
+    </div>
+    <div class="stage" data-num="3">
+      <div class="name">Routing hijack</div>
+      <div class="asi">ASI-01</div>
+      <div class="detail">Not reached -- the rogue never entered the registry.</div>
+    </div>
+    <div class="stage" data-num="4">
+      <div class="name">Lateral movement + exfiltration</div>
+      <div class="asi">ASI-07 / ASI-08</div>
+      <div class="detail">Not reached. The exfil sink is empty: no data left the boundary.</div>
+    </div>
+    <div class="stage" data-num="5">
+      <div class="name">Persistence after server removal</div>
+      <div class="asi">ASI-06</div>
+      <div class="detail">Not reached. No rogue registration to persist.</div>
+    </div>
+
+    <div class="verdict secure">&#x2705; SECURE -- Control 1 (signed agent cards) broke the chain at stage 2. Nothing exfiltrated.</div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE DIAGRAM -->
+<h2>Kill Chain Architecture</h2>
+<p>How the five stages flow across the MCP tool layer, the A2A trust boundary, and external systems.</p>
+
+<div class="diagram">
+<svg viewBox="0 0 900 480" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12">
+  <!-- Background zones -->
+  <rect x="10" y="10" width="280" height="460" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="150" y="35" text-anchor="middle" fill="#8b949e" font-size="13" font-weight="600">MCP Tool Layer</text>
+
+  <rect x="300" y="10" width="280" height="460" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="440" y="35" text-anchor="middle" fill="#8b949e" font-size="13" font-weight="600">A2A Trust Boundary</text>
+
+  <rect x="590" y="10" width="300" height="460" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="740" y="35" text-anchor="middle" fill="#8b949e" font-size="13" font-weight="600">External Systems</text>
+
+  <!-- Stage 1: Poisoned tool -->
+  <rect x="30" y="60" width="240" height="60" rx="6" fill="#21262d" stroke="#f85149"/>
+  <text x="150" y="82" text-anchor="middle" fill="#f85149" font-weight="600">Stage 1: Poisoned Tool Desc</text>
+  <text x="150" y="100" text-anchor="middle" fill="#c9d1d9" font-size="11">Attacker publishes poisoned MCP server</text>
+
+  <!-- Arrow 1->2 -->
+  <line x1="270" y1="90" x2="300" y2="90" stroke="#f85149" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+  <!-- Stage 2: Rogue registration -->
+  <rect x="320" y="60" width="240" height="60" rx="6" fill="#21262d" stroke="#f85149"/>
+  <text x="440" y="82" text-anchor="middle" fill="#f85149" font-weight="600">Stage 2: Rogue Registration</text>
+  <text x="440" y="100" text-anchor="middle" fill="#c9d1d9" font-size="11">Attacker registers unsigned agent card</text>
+
+  <!-- Arrow 2->3 -->
+  <line x1="560" y1="90" x2="590" y2="140" stroke="#f85149" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+  <!-- Stage 3: Routing hijack -->
+  <rect x="610" y="120" width="260" height="60" rx="6" fill="#21262d" stroke="#f85149"/>
+  <text x="740" y="142" text-anchor="middle" fill="#f85149" font-weight="600">Stage 3: Routing Hijack</text>
+  <text x="740" y="160" text-anchor="middle" fill="#c9d1d9" font-size="11">Router sends work to rogue peer</text>
+
+  <!-- Arrow 3->4 -->
+  <line x1="740" y1="180" x2="740" y2="210" stroke="#f85149" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+  <!-- Stage 4: Lateral movement -->
+  <rect x="610" y="210" width="260" height="60" rx="6" fill="#21262d" stroke="#f85149"/>
+  <text x="740" y="232" text-anchor="middle" fill="#f85149" font-weight="600">Stage 4: Lateral Movement</text>
+  <text x="740" y="250" text-anchor="middle" fill="#c9d1d9" font-size="11">Rogue accesses hr.read -> exfiltrates data</text>
+
+  <!-- Arrow 4->5 -->
+  <line x1="740" y1="270" x2="740" y2="300" stroke="#f85149" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+  <!-- Stage 5: Persistence -->
+  <rect x="610" y="300" width="260" height="60" rx="6" fill="#21262d" stroke="#f85149"/>
+  <text x="740" y="322" text-anchor="middle" fill="#f85149" font-weight="600">Stage 5: Persistence</text>
+  <text x="740" y="340" text-anchor="middle" fill="#c9d1d9" font-size="11">Rogue survives server removal</text>
+
+  <!-- Defended overlay -->
+  <rect x="300" y="55" width="240" height="70" rx="6" fill="none" stroke="#3fb950" stroke-width="3" stroke-dasharray="6,3"/>
+  <text x="420" y="95" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="600">&#x2713; Control 1: Signed Cards</text>
+
+  <!-- Controls -->
+  <rect x="30" y="380" width="240" height="100" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="150" y="400" text-anchor="middle" fill="#58a6ff" font-weight="600" font-size="12">Controls</text>
+  <text x="40" y="420" fill="#c9d1d9" font-size="11">1. Signed Agent Cards</text>
+  <text x="40" y="438" fill="#c9d1d9" font-size="11">2. Authorization Policy</text>
+  <text x="40" y="456" fill="#c9d1d9" font-size="11">3. Circuit Breaker + Human-in-the-Loop</text>
+  <text x="40" y="474" fill="#c9d1d9" font-size="11">Each control breaks the chain at a specific stage.</text>
+
+  <!-- Arrows from controls to stages -->
+  <line x1="150" y1="380" x2="440" y2="130" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowGreen)"/>
+  <line x1="150" y1="380" x2="740" y2="240" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowGreen)"/>
+  <line x1="150" y1="380" x2="740" y2="330" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowGreen)"/>
+
+  <!-- Legend arrows -->
+  <defs>
+    <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#f85149"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#3fb950"/>
+    </marker>
+  </defs>
+
+  <!-- Trust anchor -->
+  <rect x="320" y="380" width="240" height="50" rx="6" fill="#161b22" stroke="#58a6ff"/>
+  <text x="440" y="400" text-anchor="middle" fill="#58a6ff" font-weight="600" font-size="12">Trust Anchor (PKI)</text>
+  <text x="440" y="418" text-anchor="middle" fill="#c9d1d9" font-size="11">Signs legitimate agent cards; never signs rogue</text>
+
+  <!-- Exfil sink -->
+  <rect x="620" y="380" width="240" height="50" rx="6" fill="#21262d" stroke="#f85149"/>
+  <text x="740" y="400" text-anchor="middle" fill="#f85149" font-weight="600" font-size="12">Exfil Sink</text>
+  <text x="740" y="418" text-anchor="middle" fill="#c9d1d9" font-size="11">Collects stolen data (EMP-4471, flag)</text>
+</svg>
+</div>
+
+<!-- Defended trace detail -->
+<h2>Defended Run: Why Each Control Works</h2>
+<div class="viewers">
+  <div class="viewer">
+    <h3>Control 1: Signed Agent Cards</h3>
+    <p>Every agent card must carry a valid signature from the org trust anchor. The rogue "summariser-helper" has no access to the signing key, so its registration is rejected at the registry layer. <strong>Chain breaks at Stage 2.</strong></p>
+  </div>
+  <div class="viewer">
+    <h3>Control 2: Authorization Policy</h3>
+    <p>Even if the rogue registered, the least-privilege policy only allows doc-assistant to call document.summarise and hr-agent to call hr.read. The rogue is not in any allow-list. <strong>Chain breaks at Stage 3.</strong></p>
+  </div>
+  <div class="viewer">
+    <h3>Control 3: Circuit Breaker + Human-in-the-Loop</h3>
+    <p>The high-stakes skill hr.read requires human confirmation. The rogue cannot complete the exfiltration without a human approving. <strong>Chain breaks at Stage 4.</strong></p>
+  </div>
+  <div class="viewer">
+    <h3>Combined</h3>
+    <p>With all three controls active, the chain breaks at Stage 2 -- the earliest possible point. This is defense-in-depth: each control independently stops the kill chain at a different stage.</p>
+  </div>
+</div>
+
+<footer>
+  <p>AgenticGoat is mapped to the OWASP Top 10 for Agentic Applications and the OWASP MCP Top 10.
+  It is an independent, vendor-neutral project and is not sponsored, endorsed, or affiliated with OWASP or MITRE.</p>
+  <p style="margin-top:0.5rem;">
+    <a href="https://github.com/aminrj-labs/agentic-goat">GitHub</a> &middot;
+    <a href="https://killercoda.com/aminrj-labs/course/agentic-goat/07-kill-chain">Killercoda</a> &middot;
+    <a href="https://github.com/aminrj-labs/agentic-goat/blob/main/labs/07-mcp-to-a2a-kill-chain/README.md">Lab 07</a>
+  </p>
+</footer>
+
+</body>
+</html>

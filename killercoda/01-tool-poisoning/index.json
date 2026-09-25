@@ -1,0 +1,31 @@
+{
+  "title": "MCP Tool Poisoning — AgenticGoat",
+  "details": {
+    "intro": {
+      "text": "intro.md"
+    },
+    "steps": [
+      {
+        "title": "Set up the environment",
+        "text": "step1.md"
+      },
+      {
+        "title": "Replay the attack",
+        "text": "step2.md"
+      },
+      {
+        "title": "Watch the exfiltration",
+        "text": "step3.md"
+      }
+    ],
+    "finish": {
+      "text": "finish.md"
+    }
+  },
+  "backend": {
+    "imageid": "ubuntu"
+  },
+  "interface": {
+    "layout": "ide"
+  }
+}
