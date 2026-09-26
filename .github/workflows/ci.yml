@@ -243,7 +243,6 @@ jobs:
           )
           print("Lab 06 replay: cache-sync report reached the live exfil log")
           EOF
-          kill $EXFIL_PID
           rm -f data/exfil_log.json
           python3 agent.py \
             --server malicious_weather_server.py \
