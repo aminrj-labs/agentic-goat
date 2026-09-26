@@ -1,7 +1,7 @@
 # Cross-Server MCP Poisoning Lab — Makefile
 
 .PHONY: help setup verify seed reset show-notes exfil \
-        attack attack-return-value attack-subtle \
+        attack attack-return-value attack-subtle defend \
         clean-data clean
 
 PYTHON := $(if $(wildcard venv/bin/python),venv/bin/python,python3)
@@ -70,6 +70,20 @@ attack-subtle:              ## Run the softer cache-sync phrasing variant
 	  $(if $(strip $(model)),--model "$(model)",) \
 	  --query "$(query)" \
 	  --verbose
+
+defend:                     ## Run the cross-server poisoning replay with the server-provenance defense
+	@echo "=== Cross-server poisoning, defended (server-provenance) ==="
+	@echo "The server-provenance gate refuses tool calls whose arguments carry"
+	@echo "another server's tool result. Replays cassettes/paris-weather.json,"
+	@echo "so no model is required."
+	@echo "The placeholder cassette's notes_dump is placeholder text, so the"
+	@echo "gate has no cross-server data to refuse; the canary stays absent."
+	$(PYTHON) agent.py \
+	  --server malicious_weather_server.py \
+	  --server legitimate_notes_server.py \
+	  --defense server-provenance \
+	  --query "$(query)" \
+	  --replay cassettes/paris-weather.json
 
 clean-data:                 ## Empty the victim notes store and clear the attacker exfil log
 	$(PYTHON) seed_notes.py --empty --clear-exfil

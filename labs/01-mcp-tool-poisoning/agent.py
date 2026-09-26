@@ -58,7 +58,23 @@ def build_server_params(server_arg: str) -> StdioServerParameters:
     return StdioServerParameters(command="node", args=[package_index, allowed_path])
 
 
-async def run_agent(server_scripts: list[str], user_prompt: str):
+# The sensitive-paths defense: a least-privilege fence over filesystem tools.
+# A protected path is refused before the server is ever called, so the
+# defense holds on replay as well as on live runs. The canary file in this
+# lab lives under ~/.ssh, which is a protected root by default.
+PROTECTED_ROOTS = [os.path.expanduser("~/.ssh")]
+
+
+def _is_protected(path: str) -> bool:
+    expanded = os.path.realpath(os.path.expanduser(path))
+    for root in PROTECTED_ROOTS:
+        root_real = os.path.realpath(root)
+        if expanded == root_real or expanded.startswith(root_real + os.sep):
+            return True
+    return False
+
+
+async def run_agent(server_scripts: list[str], user_prompt: str, defense: str | None = None):
     """Connect to multiple MCP servers and run an agentic loop."""
     all_tools = []
     sessions = []
@@ -127,6 +143,28 @@ async def run_agent(server_scripts: list[str], user_prompt: str):
                         ),
                         sessions[0],
                     )
+
+                    if (
+                        defense == "sensitive-paths"
+                        and tool_name in ("read_file", "write_file", "list_directory")
+                        and _is_protected(tool_args.get("path", ""))
+                    ):
+                        print(
+                            f"  [Defense] Blocked {tool_name}: path is protected"
+                            f" ({tool_args.get('path')})"
+                        )
+                        messages.append(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tc.id,
+                                "content": (
+                                    "Permission denied: the requested path is protected."
+                                    " Do not retry it."
+                                ),
+                            }
+                        )
+                        continue
+
                     result = await session.call_tool(tool_name, tool_args)
                     print(f"  ← Result: {str(result.content)[:120]}")
 
@@ -146,6 +184,7 @@ async def run_agent(server_scripts: list[str], user_prompt: str):
 def _split_flags(argv):
     record = None
     replay = None
+    defense = None
     positional = []
     i = 0
     while i < len(argv):
@@ -159,28 +198,40 @@ def _split_flags(argv):
                 replay = argv[i + 1]
             i += 2
             continue
+        if argv[i] == "--defense":
+            if i + 1 >= len(argv):
+                print("Missing value after --defense", file=sys.stderr)
+                sys.exit(2)
+            defense = argv[i + 1]
+            i += 2
+            continue
         if argv[i] in ("-h", "--help"):
             print(
                 'Usage: python3 agent.py [--record PATH | --replay PATH]\n'
+                '       [--defense sensitive-paths]\n'
                 '       server1 [server2 ...] "user prompt"\n\n'
-                "  --record PATH   live model answers; responses stored in PATH\n"
-                "  --replay PATH  serve PATH in order; no model required"
+                "  --record PATH          live model answers; responses stored in PATH\n"
+                "  --replay PATH          serve PATH in order; no model required\n"
+                "  --defense sensitive-paths refuse filesystem reads of protected paths (default: ~/.ssh)"
             )
             sys.exit(0)
         positional.append(argv[i])
         i += 1
-    return record, replay, positional
+    return record, replay, defense, positional
 
 
 if __name__ == "__main__":
-    record, replay, positional = _split_flags(sys.argv[1:])
+    record, replay, defense, positional = _split_flags(sys.argv[1:])
     if record and replay:
         print("Use --record PATH or --replay PATH, not both")
+        sys.exit(2)
+    if defense is not None and defense != "sensitive-paths":
+        print(f"Unknown defense: {defense} (supported: sensitive-paths)")
         sys.exit(2)
     if not positional:
         print(
             'Usage: python3 agent.py [--record PATH | --replay PATH] '
-            'server1 [server2 ...] "user prompt"'
+            '[--defense sensitive-paths] server1 [server2 ...] "user prompt"'
         )
         sys.exit(2)
     servers = positional[:-1]  # all args except last
@@ -196,7 +247,7 @@ if __name__ == "__main__":
             lab="01-mcp-tool-poisoning",
         )
         print(f"[Cassette] {'record' if record else 'replay'} mode: {record or replay}")
-    asyncio.run(run_agent(servers, prompt))
+    asyncio.run(run_agent(servers, prompt, defense))
     if record:
         _cassette.finalize()
 

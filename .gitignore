@@ -27,6 +27,7 @@
 # Lab runtime artifacts (regenerated on each run; not source)
 **/whatsapp_stub.log
 **/exfil.out
+**/defend.out
 **/state/exfil_received.jsonl
 labs/07-mcp-to-a2a-kill-chain/undefended.log
 labs/07-mcp-to-a2a-kill-chain/defended.log

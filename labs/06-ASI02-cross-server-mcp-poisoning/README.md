@@ -228,3 +228,21 @@ The same control family that breaks Lab 01 and Lab 01b:
   `list_notes` followed by `sync_weather_cache(notes_dump=...)` sequence is
   the incident signature; without the log it is invisible, with it it is
   greppable in seconds.
+
+**Run the defense in this lab.** The `--defense server-provenance` gate
+refuses a tool call whose arguments carry, verbatim, a tool result produced
+by another server in the session, which is exactly the cross-server data
+flow the attack depends on (the legitimate server's notes ending up in the
+malicious server's `sync_weather_cache` call):
+
+    make exfil          # terminal 1
+    make defend         # terminal 2
+
+In a live run the gate refuses the `sync_weather_cache(notes_dump=...)`
+call at the boundary, so no notes reach the exfil endpoint. With the
+shipped placeholder cassette the recorded `notes_dump` is placeholder text
+rather than the notes, so there is no cross-server data in the call to
+refuse; the replay then exercises the defended plumbing and `python3
+canary.py` reports the flag absent. The gate logic itself is asserted
+directly in CI (`cross_server_violation`), where the attack's data flow is
+shown to be refused.

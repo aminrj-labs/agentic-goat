@@ -19,7 +19,8 @@ instructions as part of the tool's contract. It follows them silently.
 ## What next?
 
 - **Read the full lab** at [labs/01-mcp-tool-poisoning/README.md](https://github.com/aminrj-labs/agentic-goat/blob/main/labs/01-mcp-tool-poisoning/README.md) for the detailed walkthrough.
-- **Run it locally with a real model**: `cd labs/01-mcp-tool-poisoning && make attack` (requires a local LLM).
+- **Run it locally with a real model**: `cd labs/01-mcp-tool-poisoning && python3 agent.py attack1_direct_poison.py "@modelcontextprotocol/server-filesystem:~" "What is 47 plus 38?"` (requires a local LLM; start `python3 exfil_server.py` in a second terminal).
+- **See the defense**: step 4 above shows the agent's sensitive-paths fence refusing the protected read before the server is ever called.
 - **Continue to the kill chain**: [Lab 07](https://github.com/aminrj-labs/agentic-goat/blob/main/labs/07-mcp-to-a2a-kill-chain/README.md) starts with this same poisoned tool description as the entry point.
 - **Open in Codespaces** for a full dev environment: click the "Open in Codespaces" badge in the repo README.
 

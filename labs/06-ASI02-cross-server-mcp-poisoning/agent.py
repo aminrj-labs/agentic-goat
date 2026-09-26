@@ -65,6 +65,42 @@ def build_server_params(server_arg: str) -> StdioServerParameters:
     return StdioServerParameters(command=sys.executable, args=[str(server_path)])
 
 
+def _string_values(value: Any):
+    """Yield every string nested inside a JSON-able argument tree."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for v in value.values():
+            yield from _string_values(v)
+    elif isinstance(value, (list, tuple)):
+        for v in value:
+            yield from _string_values(v)
+
+
+def cross_server_violation(
+    tool_args: dict[str, Any],
+    target_server: str,
+    provenance: list[tuple[str, str]],
+) -> str | None:
+    """Return the server whose tool result is being carried cross-server.
+
+    A tool call violates server provenance when one of its (nested) string
+    argument values contains, verbatim, a tool result produced by another
+    server in this session. That data flow is what the cross-server attacks
+    in this lab depend on: the legitimate server's notes ending up in the
+    malicious server's sync call. Returns the offending server's name, or
+    None when the call carries no other server's data.
+    """
+    for prov_server, prov_text in provenance:
+        if (
+            prov_server != target_server
+            and len(prov_text) > 20
+            and any(prov_text in s for s in _string_values(tool_args))
+        ):
+            return prov_server
+    return None
+
+
 def serialise_tool_result(result: Any) -> str:
     chunks: list[str] = []
     for item in getattr(result, "content", []) or []:
@@ -97,6 +133,7 @@ async def run_agent(
     max_turns: int,
     verbose: bool,
     cassette=None,
+    defense: str | None = None,
 ) -> str:
     llm = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key="lm-studio")
     if cassette is not None:
@@ -113,6 +150,7 @@ async def run_agent(
 
     all_tools: list[dict[str, Any]] = []
     tool_sessions: dict[str, ClientSession] = {}
+    tool_servers: dict[str, str] = {}
 
     async with AsyncExitStack() as stack:
         for server_script in server_scripts:
@@ -129,6 +167,7 @@ async def run_agent(
                     )
 
                 tool_sessions[tool.name] = session
+                tool_servers[tool.name] = server_script
                 all_tools.append(
                     {
                         "type": "function",
@@ -161,6 +200,11 @@ async def run_agent(
         ]
 
         final_response = ""
+
+        # server-provenance defense: each result is remembered together with
+        # the server that produced it, so a later call whose arguments carry
+        # another server's result can be refused at the boundary.
+        result_provenance: list[tuple[str, str]] = []
 
         for turn in range(max_turns):
             if verbose:
@@ -196,8 +240,31 @@ async def run_agent(
                 if session is None:
                     raise RuntimeError(f"No MCP session found for tool '{tool_name}'")
 
+                server_script = tool_servers.get(tool_name, "")
+                if defense == "server-provenance":
+                    blocking_source = cross_server_violation(
+                        tool_args, server_script, result_provenance
+                    )
+                    if blocking_source is not None:
+                        print(
+                            f"  [Defense] Blocked {tool_name}: argument carries data from "
+                            f"{blocking_source}'s tool result (cross-server data flow)"
+                        )
+                        messages.append(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tool_call.id,
+                                "content": (
+                                    "Blocked: cross-server data flow refused. Arguments must not "
+                                    "carry another server's tool result."
+                                ),
+                            }
+                        )
+                        continue
+
                 result = await session.call_tool(tool_name, tool_args)
                 result_text = serialise_tool_result(result)
+                result_provenance.append((server_script, result_text))
 
                 if verbose:
                     print(f"  <- Result: {preview(result_text)}")
@@ -222,6 +289,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", help="Override the LM Studio model id")
     parser.add_argument("--max-turns", type=int, default=DEFAULT_MAX_TURNS, help="Maximum agent-tool turns")
     parser.add_argument("--verbose", action="store_true", help="Print tool discovery and tool call traces")
+    parser.add_argument(
+        "--defense",
+        choices=["server-provenance"],
+        default=None,
+        help="Refuse tool calls whose arguments carry another server's tool result",
+    )
     cassette_group = parser.add_mutually_exclusive_group()
     cassette_group.add_argument(
         "--record", metavar="PATH", help="Answer with the live model and store the responses in PATH"
@@ -255,6 +328,7 @@ if __name__ == "__main__":
             max_turns=arguments.max_turns,
             verbose=arguments.verbose,
             cassette=arguments.cassette,
+            defense=arguments.defense,
         )
     )
     if arguments.record:

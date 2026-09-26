@@ -16,6 +16,10 @@
       {
         "title": "Watch the exfiltration",
         "text": "step3.md"
+      },
+      {
+        "title": "Break it with the defense",
+        "text": "step4.md"
       }
     ],
     "finish": {

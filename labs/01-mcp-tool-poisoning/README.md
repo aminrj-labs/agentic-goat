@@ -186,3 +186,20 @@ context, which is the vulnerability.
   description is indistinguishable from a legitimate one at install time. Use
   [mcp-scan](https://github.com/invariantlabs-ai/mcp-scan) to detect poisoned
   tool descriptions before running them.
+
+**Run the defense in this lab.** The agent's `--defense sensitive-paths`
+fence refuses filesystem reads of protected paths (the canary file lives
+under `~/.ssh`) before the server is ever called, so it holds on replay as
+well as on live runs:
+
+    python3 make_canary.py
+    python3 exfil_server.py                          # terminal 1
+    python3 agent.py --defense sensitive-paths \
+      --replay cassettes/attack1.json \
+      attack1_direct_poison.py "@modelcontextprotocol/server-filesystem:~" \
+      "What is 47 plus 38?"                          # terminal 2
+
+Expect `[Defense] Blocked read_file: path is protected (~/.ssh/id_rsa.pub.demo)`.
+The recorded `add()` call still executes, but it carries the recorded (placeholder)
+sidenote, never the canary; with a live model the read is refused, so the model
+never obtains the canary contents. `python3 canary.py` reports the flag absent.
