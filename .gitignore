@@ -27,4 +27,10 @@
 **/whatsapp_stub.log
 **/venv/
 labs/03-red-team-assessment/email_log.txt
-labs/03-red-team-assessment/sandbox/docs/
+# only the runtime-created doc; q1-status-report.md and deployment-guide.md are fixtures
+labs/03-red-team-assessment/sandbox/docs/status-report.md
+labs/05-agentic-memory-attacks/memory/memory.json
+labs/05-agentic-memory-attacks/memory/episodic.json
+labs/05-agentic-memory-attacks/memory/audit.jsonl
+labs/06-ASI02-cross-server-mcp-poisoning/data/notes_store.json
+labs/06-ASI02-cross-server-mcp-poisoning/data/exfil_log.json

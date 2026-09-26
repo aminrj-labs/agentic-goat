@@ -72,11 +72,14 @@ BASELINE_ENTRIES = [
 SEP = "─" * 50
 
 
-def seed() -> None:
-    os.makedirs(os.path.dirname(MEMORY_FILE), exist_ok=True)
-
-    with open(MEMORY_FILE, "w") as f:
+def seed_memory_file(path: str = MEMORY_FILE) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
         json.dump(BASELINE_ENTRIES, f, indent=2)
+
+
+def seed() -> None:
+    seed_memory_file(MEMORY_FILE)
 
     print(f"\n{SEP}")
     print("  Memory seeded with clean baseline entries")

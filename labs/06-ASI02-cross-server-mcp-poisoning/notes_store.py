@@ -36,6 +36,10 @@ def load_seed_notes() -> list[dict[str, str]]:
 
 
 def load_notes() -> list[dict[str, str]]:
+    if not NOTES_STORE_PATH.exists():
+        # Fresh checkout: the store is a runtime artifact and the seed is the
+        # source of truth, so answer from the seed without writing anything.
+        return load_seed_notes()
     data = _read_json(NOTES_STORE_PATH, [])
     return data if isinstance(data, list) else []
 

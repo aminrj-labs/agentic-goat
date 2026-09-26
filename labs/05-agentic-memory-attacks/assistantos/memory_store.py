@@ -47,7 +47,18 @@ class MemoryStore:
         self.defense_layers = defense_layers or {}
         os.makedirs(os.path.dirname(path), exist_ok=True)
         if not os.path.exists(path):
-            self._write_raw([])
+            if os.path.abspath(path) == os.path.abspath(MEMORY_FILE):
+                # Fresh checkout: start from the lab's clean baseline instead
+                # of an empty store, so a benign session is identical to one
+                # after `make seed`.
+                try:
+                    from seed import seed_memory_file
+
+                    seed_memory_file(path)
+                except ImportError:
+                    self._write_raw([])
+            else:
+                self._write_raw([])
 
     # ── Low-level I/O ────────────────────────────────────────────────────────
 
