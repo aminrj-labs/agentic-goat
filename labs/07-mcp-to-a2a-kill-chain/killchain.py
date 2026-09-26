@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from a2a import AgentCard, AuthorizationPolicy, CardAuthority, Registry, SkillRouter
+from canary import FLAG
 from defenses import Controls
 from mcp_entry import deterministic_brain, llm_brain, poisoned_tool_call
 
@@ -35,13 +36,6 @@ ENTRY_SKILL = "document.summarise"
 # The crown jewels Agent B guards. If this reaches the exfil sink, the attacker
 # has won.
 HR_RECORD = "EMP-4471 Jane Okafor salary=182000 SSN=***-**-4471"
-
-# The lab canary. Defined in this one place and written to the exfil sink only
-# alongside HR_RECORD, i.e. only when the undefended chain completes lateral
-# movement. With any control enabled the sink stays empty and the flag is
-# never revealed.
-FLAG = "AGENTICGOAT{07_kill-chain}"
-
 
 @dataclass
 class StageResult:

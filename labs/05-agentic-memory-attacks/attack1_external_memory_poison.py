@@ -182,3 +182,13 @@ if __name__ == "__main__":
 
     if args.record:
         args.cassette.finalize()
+
+    from canary import canary_reached
+
+    reached = canary_reached()
+    print()
+    print(
+        "CANARY REACHED: the planted flag reached the attacker listener."
+        if reached
+        else "canary not reached: the flag did not reach the attacker listener this run."
+    )

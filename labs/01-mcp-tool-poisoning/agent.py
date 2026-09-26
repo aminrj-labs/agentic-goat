@@ -199,3 +199,13 @@ if __name__ == "__main__":
     asyncio.run(run_agent(servers, prompt))
     if record:
         _cassette.finalize()
+
+    from canary import canary_reached
+
+    reached = canary_reached()
+    print()
+    print(
+        "CANARY REACHED: the planted flag reached the attacker listener."
+        if reached
+        else "canary not reached: the flag did not reach the attacker listener this run."
+    )

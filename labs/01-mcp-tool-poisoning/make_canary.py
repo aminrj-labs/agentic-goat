@@ -7,7 +7,7 @@ the flag is revealed only when it reaches the attacker's listener.
 
 import os
 
-FLAG = "AGENTICGOAT{01_tool-desc-poisoning}"
+from canary import FLAG
 
 CONTENT = (
     "ssh-rsa AAAAB3NzaC1yc2E_DEMO_KEY demo@lab\n"

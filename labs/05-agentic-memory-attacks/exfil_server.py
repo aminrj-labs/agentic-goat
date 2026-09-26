@@ -13,16 +13,14 @@ Endpoints:
 import datetime
 import json
 import re
+from pathlib import Path
 
 from flask import Flask, request
 
+from canary import FLAG
+
 app = Flask(__name__)
 SEP = "=" * 64
-
-# The lab canary. Defined in this one place and revealed only when a
-# poisoned memory entry drives an agent to hit this endpoint on its own.
-# No legitimate run of this lab POSTs or GETs to /exfil.
-FLAG = "AGENTICGOAT{05_memory-poisoning}"
 
 # A live session's exfil payload carries the session ID the lab generated
 # for that run: "sess-" plus eight hex chars (see assistantos/session.py).
@@ -30,6 +28,9 @@ FLAG = "AGENTICGOAT{05_memory-poisoning}"
 # so the flag reveals only for a genuine self-initiated request, never for
 # a recorded replay.
 LIVE_SESSION_DATA = re.compile(r"sess-[0-9a-f]{8}")
+
+# Durable capture log (checked by canary.py); recreated on each server start.
+STATE_FILE = Path(__file__).resolve().parent / "state" / "exfil_received.jsonl"
 
 _received: list = []
 _flag_revealed = False
@@ -46,6 +47,11 @@ def exfil():
         raw = request.get_json(silent=True) or request.data.decode("utf-8", errors="replace")
 
     _received.append({"ts": ts, "method": request.method, "payload": raw})
+
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    entry = {"ts": datetime.datetime.now().isoformat(), "method": request.method, "data": raw}
+    with open(STATE_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
     print(f"\n{SEP}")
     print(f"[{ts}]  ⚠️  EXFILTRATION RECEIVED  ({request.method})")
@@ -66,6 +72,13 @@ def exfil():
         print("  Cross-session persistence confirmed: a stored memory entry")
         print("  drove the agent to this endpoint without any user instruction.")
         _flag_revealed = True
+        with open(STATE_FILE, "a", encoding="utf-8") as f:
+            f.write(
+                json.dumps(
+                    {"ts": datetime.datetime.now().isoformat(), "event": "flag_revealed", "flag": FLAG}
+                )
+                + "\n"
+            )
     elif not _flag_revealed:
         print("\n  No live session data in the payload: a recorded (placeholder)")
         print("  replay carries an illustrative value, not the session ID of this")
@@ -87,9 +100,12 @@ def health():
 
 
 if __name__ == "__main__":
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    STATE_FILE.write_text("", encoding="utf-8")
     print(SEP)
     print("  Agentic Memory Attacks Lab — Attacker Exfil Server")
     print("  Listening on http://localhost:9999")
+    print(f"  Durable capture log: {STATE_FILE}")
     print("  GET  /exfil?data=<encoded>  — query-param capture")
     print("  POST /exfil  (JSON|raw)     — body capture")
     print("  GET  /captures              — list all received payloads")

@@ -8,6 +8,7 @@ Start before running Docker Dash attack:
 import datetime
 import json
 import os
+from pathlib import Path
 
 from flask import Flask, request
 
@@ -18,6 +19,16 @@ EXFIL_PORT = int(os.getenv("EXFIL_PORT", "9999"))
 MAX_PAYLOAD_SIZE = int(os.getenv("MAX_PAYLOAD_SIZE", "1_000_000"))
 
 SEP = "=" * 60
+
+STATE_FILE = Path(__file__).resolve().parent / "state" / "exfil_received.jsonl"
+
+
+def _record(method: str, raw) -> None:
+    """Append one capture to the durable state file (checked by canary.py)."""
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    entry = {"ts": datetime.datetime.now().isoformat(), "method": method, "data": raw}
+    with open(STATE_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
 @app.route("/exfil", methods=["GET", "POST"])
@@ -36,6 +47,8 @@ def exfil():
             )
     except Exception as e:
         return {"error": f"failed to parse request: {e}"}, 400
+
+    _record(request.method, raw)
 
     print(f"\n{SEP}")
     print(f"[{ts}]  EXFILTRATION RECEIVED  ({request.method})")
@@ -59,9 +72,12 @@ def health():
 
 
 if __name__ == "__main__":
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    STATE_FILE.write_text("", encoding="utf-8")
     print(SEP)
     print("  Docker Dash Lab — Attacker Exfil Server")
     print(f"  Listening on http://{EXFIL_HOST}:{EXFIL_PORT}")
+    print(f"  Durable capture log: {STATE_FILE}")
     print("  GET  /exfil?data=<url-encoded>  — query-param capture")
     print("  POST /exfil  (JSON or raw body) — body capture")
     print("  GET  /health                    — liveness check")
