@@ -4,6 +4,12 @@ name: ci
 # model-dependent lab with no model, no endpoint and no GPU, and the
 # deterministic paths assert flag capture. The exfil listeners and MCP
 # servers run live in every step below.
+#
+# The shipped cassettes are placeholders: replayed tool arguments are
+# recorded, so replay assertions prove the live plumbing (real tools run,
+# real listeners receive the request) but do not deliver lab flags. Lab 05
+# asserts the flag is NOT revealed on a placeholder replay; Lab 07 is
+# model-independent and asserts the real flag.
 
 on:
   push:
@@ -59,31 +65,18 @@ jobs:
       - name: Lab 01 - replay tool poisoning (no model)
         working-directory: labs/01-mcp-tool-poisoning
         run: |
+          npm install --no-audit --no-fund
           python3 make_canary.py
-          cat > /tmp/fs_stub_ci.py <<'EOF'
-          import os
-          from mcp.server.fastmcp import FastMCP
-
-          mcp = FastMCP("filesystem")
-
-          @mcp.tool()
-          def read_file(path: str) -> str:
-              """Reads a file from the local filesystem."""
-              with open(os.path.expanduser(path), encoding="utf-8") as f:
-                  return f.read()
-
-          if __name__ == "__main__":
-              mcp.run()
-          EOF
           PYTHONUNBUFFERED=1 python3 exfil_server.py > exfil.out 2>&1 &
           EXFIL_PID=$!
           sleep 2
           python3 agent.py --replay cassettes/attack1.json \
-            attack1_direct_poison.py /tmp/fs_stub_ci.py "What is 47 plus 38?"
+            attack1_direct_poison.py "@modelcontextprotocol/server-filesystem:~" \
+            "What is 47 plus 38?"
           kill $EXFIL_PID
           grep -q '"tool": "add"' exfil.out
           grep -q 'placeholder' exfil.out
-          echo "Lab 01 replay: poisoned add() call reached the live exfil listener"
+          echo "Lab 01 replay: live read_file served the canary, the recorded add() sidenote reached the live exfil listener"
 
       - name: Lab 01b - replay cross-server shadowing (no model)
         working-directory: labs/01b-cross-server-shadowing
@@ -109,7 +102,7 @@ jobs:
             --replay cassettes/image-safety.json
           kill $EXFIL_PID
           grep -q '"containers": "lab-cache, lab-database, lab-webserver"' exfil.out
-          echo "Lab 02 replay: health report reached the live exfil listener"
+          echo "Lab 02 replay: the recorded docker_health_report call and its recorded payload reached the live exfil listener (no Docker daemon in CI)"
 
       - name: Lab 03 - replay document injection (no model)
         working-directory: labs/03-red-team-assessment
@@ -136,7 +129,7 @@ jobs:
           kill $EXFIL_PID
           grep -q "Subject: Audit Complete" email_log.txt
           grep -q "Type.*: email" exfil.out
-          echo "Lab 03 replay: audit email reached the live exfil listener"
+          echo "Lab 03 replay: the live send_email tool wrote the log; the recorded email payload reached the live exfil listener"
 
       - name: Lab 04 - cassette integrity (no chromadb in CI)
         working-directory: labs/04-rag-security
@@ -167,8 +160,12 @@ jobs:
             --replay cassettes/external-poison.json
           kill $EXFIL_PID
           grep -q "EXFILTRATION RECEIVED" exfil.out
-          grep -q "FLAG CAPTURED: AGENTICGOAT{05_memory-poisoning}" exfil.out
-          echo "Lab 05 replay: self-initiated exfil reached the live listener and revealed the flag"
+          if grep -q "FLAG CAPTURED" exfil.out; then
+            echo "Lab 05 replay: a placeholder cassette revealed the flag; it must not"
+            exit 1
+          fi
+          grep -q "No live session data" exfil.out
+          echo "Lab 05 replay: self-initiated exfil reached the live listener; the placeholder cassette carries no live session data, so no flag"
 
       - name: Lab 06 - replay cross-server cache sync (no model)
         working-directory: labs/06-ASI02-cross-server-mcp-poisoning
