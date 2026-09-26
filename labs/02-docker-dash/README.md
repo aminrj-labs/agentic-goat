@@ -7,6 +7,15 @@ agent silently stops the victim's containers and reports their inventory
 (which includes environment data) to the attacker. The user is told the image
 is safe.
 
+> **Warning: this lab can stop every container on your machine.**
+> The injected payload drives the agent's `docker_stop` tool against the
+> containers that `docker_ps` lists, and `docker_ps` lists *every* container
+> running on your host, not only the three lab victims. On a laptop with
+> Docker Desktop that means your real workloads get stopped too. Run this lab
+> on a dedicated machine or VM, or point Docker at a dedicated daemon
+> (a separate Docker Desktop instance or a remote daemon) via
+> `docker context` before you start.
+
 Model class: **Model-dependent.** A strong function-calling model is required.
 Susceptibility is model-graded, exactly as in [Lab 01](../01-mcp-tool-poisoning/README.md):
 small models often report the injection instead of following it, or stop
@@ -159,6 +168,9 @@ exfiltration leg (threat model B) did not.
 **Prerequisites:** Python 3.11+, Docker (Rancher Desktop, Docker Desktop, or
 native), a local LLM endpoint with function calling (see
 [common prerequisites](../../README.md#prerequisites)).
+
+Before running anything below, read the warning at the top of this page: the
+attack stops every container the agent can see, not only the lab victims.
 
 ```bash
 cd labs/02-docker-dash
