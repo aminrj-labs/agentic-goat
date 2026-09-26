@@ -5,7 +5,7 @@ create a stub filesystem server (the "victim" MCP server).
 
 ```bash
 cd /home/user/agentic-goat/labs/01-mcp-tool-poisoning
-pip install mcp openai httpx flask -q
+pip install "mcp>=1.0.0,<2.0.0" openai httpx flask -q
 npm install @modelcontextprotocol/server-filesystem -q
 python3 make_canary.py
 ```

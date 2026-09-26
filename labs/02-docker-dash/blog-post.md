@@ -222,7 +222,7 @@ cd labs/02-docker-dash
 python3 -m venv venv && source venv/bin/activate
 
 # 3. Install Python dependencies
-pip install mcp flask openai
+pip install "mcp>=1.0.0,<2.0.0" flask openai
 
 # 4. Start the lab containers (the targets that will be stopped by the attack)
 docker run -d --name lab-cache memcached:alpine

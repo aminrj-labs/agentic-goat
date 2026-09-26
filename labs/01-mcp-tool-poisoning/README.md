@@ -123,7 +123,7 @@ local LLM endpoint with function calling (see
 ```bash
 cd labs/01-mcp-tool-poisoning
 python3 -m venv venv && source venv/bin/activate
-pip install mcp httpx flask openai
+pip install "mcp>=1.0.0,<2.0.0" httpx flask openai
 npm install @modelcontextprotocol/server-filesystem
 python3 make_canary.py     # write the synthetic canary file
 ```

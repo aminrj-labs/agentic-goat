@@ -127,7 +127,7 @@ def exfil():
 ```bash
 # 1. Python environment
 python3 -m venv venv && source venv/bin/activate
-pip install mcp httpx flask openai
+pip install "mcp>=1.0.0,<2.0.0" httpx flask openai
 
 # 2. Local filesystem MCP server (used in the second attempt)
 npm install @modelcontextprotocol/server-filesystem

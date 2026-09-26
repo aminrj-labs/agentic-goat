@@ -163,7 +163,7 @@ native), a local LLM endpoint with function calling (see
 ```bash
 cd labs/02-docker-dash
 python3 -m venv venv && source venv/bin/activate
-pip install mcp flask openai
+pip install "mcp>=1.0.0,<2.0.0" flask openai
 
 cd rce-attack && docker build -t health-monitor:1.2.0 . && cd ..
 bash start_victims.sh
