@@ -168,11 +168,19 @@ async def list_tools() -> list[Tool]:
 
 
 def resolve_path(path: str) -> Path:
-    """Resolve path relative to SANDBOX_DIR if not absolute."""
+    """Resolve path relative to SANDBOX_DIR if not absolute.
+
+    A leading ``sandbox/`` is treated as the sandbox root itself, so
+    paths written relative to the lab directory (the form the README
+    prompt uses, e.g. ``sandbox/docs/status-report.md``) resolve to the
+    same place as sandbox-relative paths.
+    """
     p = Path(path)
-    if not p.is_absolute():
-        p = SANDBOX_DIR / p
-    return p
+    if p.is_absolute():
+        return p
+    if p.parts[:1] == ("sandbox",):
+        p = Path(*p.parts[1:]) if len(p.parts) > 1 else Path(".")
+    return SANDBOX_DIR / p
 
 
 @server.call_tool()

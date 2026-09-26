@@ -1,7 +1,7 @@
 # AgenticGoat v1: verified assessment and remediation work orders
 
 Audience: the coding agent that will do the remediation. Read all of it before starting.
-Reviewed state: first pass at `f0086e2`; progress re-check on 2026-09-26 at `178ca3e` (R01-R04 landed, see section 0.5).
+Reviewed state: first pass at `f0086e2`; progress re-check on 2026-09-26 at `178ca3e` (R01-R04 landed, see section 0.5); final re-assessment at `a8cab17` (section 0.6).
 Reference spec: `.planning/agenticgoat-v1-spec.md` (called "the spec" below, with § numbers).
 Method: every tracked source file in `labs/`, `killercoda/`, `.devcontainer/`, `.github/`, `docs/` and the top-level docs was read in full. GitHub CI logs and the Pages API were checked. For the progress re-check, the R01-R04 diffs were read and every CI step was replayed locally on a clean clone (Python 3.12, `mcp` 1.30.0, isolated `HOME`).
 
@@ -68,6 +68,72 @@ DoD 13 (relevance guarantee) moves from "Partial, and false" to **Met**: the cla
 - **Open, blocking:** F2, F4 (clone, paths, PEP 668, stub server, no defended step, URLs), F5 (Pages), F31, F32.
 - **Open, spec or correctness:** F6, F7 (flag trigger), F8, F9, F10, F11, F12, F13, F14, F16, F17, F18, F34.
 - **Open, quality:** F20 to F30, F33.
+
+---
+
+## 0.6 Final re-assessment (2026-09-26, `a8cab17`)
+
+Every finding below was re-verified against the code at `a8cab17`. Replay and assertion steps were run locally on a clean checkout; CI status was read from the org repo's GitHub Actions.
+
+### Work orders landed since the 0.5 re-check
+
+| ID | Commit(s) | Finding(s) | What now holds |
+|---|---|---|---|
+| Docs | `662a87e` | F28 | BEGINNERS.md added; README "How a lab works" section; "no data leaves your laptop" scoped to local runs |
+| R06 | `afe9d5d` | F32 | `mcp>=1.0.0,<2.0.0` pinned in every requirements file and install command (Lab 01/02 READMEs, 01b/03/06 requirements, devcontainer), not just CI |
+| R08 | `72e94f2` | F33 | `**/exfil.out` gitignored (plus `**/defend.out` in R15); replay and CI no longer dirty `git status` |
+| R09 | `c6d33df` | F34 | Lab 02 README carries a prominent warning that the attack acts on every container on the host; run against a dedicated daemon or VM. Scoping `docker_ps` stays [ASK] |
+| R10 | `63078a9` | F4 | Killercoda steps clone to `$HOME/agentic-goat`, create a venv, `pip install -r`, use the real lab servers and real paths; PEP 668 avoided |
+| R11 | `70f2ee2`, `b84c760` | F5 | `deploy-docs` workflow publishes `docs/` to Pages on every push; viewer stage numbers and the Stage-1 "modelled" honesty were fixed in R03 |
+| R12 | `d472e51` | F2, F7 | Each CI replay step now asserts the placeholder is present and the flag is absent; Lab 05 prints `FLAG CAPTURED` only when the flag is in the payload; CI asserts "No live session data" for the placeholder run |
+| R13 | `4515355` | F10 | `canary.py` with `canary_reached()` in all seven labs; every CI replay step calls it |
+| R14 | `ed56b6b` | F8 | Lab 04's flag is decided by a retrieval side effect (poisoned chunk id in `state/retrievals.jsonl`), not by parsing model output |
+| R15 | `b6ac892`, `11ae129` | F9 | Lab 01 `--defense sensitive-paths` (protected-path fence); Lab 02 `defenses/read_only_docker_server.py` (no actuation, no exfil tool); Lab 06 `--defense server-provenance` (cross-server data-flow gate, `make defend`, unit-asserted in CI); Killercoda Lab 01 gains step 4 "Break it with the defense"; CI runs the defended variants. `11ae129` drops a duplicate `kill` that failed the Lab 06 step |
+| R16 | `9a39380` | F11, F13, F14, F16 | All labs read `LLM_BASE_URL`/`MODEL`/`API_KEY` (promptfoo config interpolates them); Lab 03 title, `cd ../pyrit`, unused pyrit pin, ASI comment labels, promptfoo-target clarification; Lab 05 WebTool refuses non-localhost URLs; stdio MCP server stdout prints moved to stderr |
+| R17 | `73ee2f6` | F17 | devcontainer: no install swallows failures, base image replaces the redundant Dockerfile, no `forwardPorts: [9999]`, Lab 04's heavy deps are on-demand, `make_canary.py` runs at setup, quickstart fixed |
+| R18 | `a8cab17` | F18, F20-F27, F29, F30 | `.planning/no-behavior-change.md` records every input delta; Lab 07 fallback prints FELL BACK; `lab-env.sh` deleted; crosswalk wording fixed; permissive-prompt disclosure in Lab 01b/02 Overviews; story audit (Lab 01 Supabase case corrected); Overview detail moved into walkthroughs; em dashes removed from docs; CI enforces a single `cassette.py` hash; Lab 04 Hugging Face first-run note; stale `:1234` port and success-rate claims removed |
+| Final re-assessment | this commit | F12 | `resolve_path` accepts the `sandbox/`-prefixed paths the README prompt uses, so the documented prompt resolves; recorded in `.planning/no-behavior-change.md` (no payload text changed) |
+
+`R05` and `R07` have no commits. `R07` is reserved for real cassette captures, which need a model endpoint ([AMINE], see below); `R05` was never assigned a surviving scope.
+
+### Findings status (all 34)
+
+- **Closed:** F1 (R01; CI green on every push since R11), F2 (assertions now test what they claim; the true-positive half is R07, [AMINE]), F3 (R02), F4 (R10; course publishing and URLs are [AMINE]), F5 (R03 + R11; Pages is not live from this environment, [AMINE]), F6 (documented as an accepted property of placeholder replays in the cassette READMEs; true delivery is R07), F7 (R04 + R12), F8 (R14), F9 (R15), F10 (R13), F11 (R16), F12 (this re-assessment), F13 (R16), F14 (R16), F15 (R04), F16 (R16), F17 (R17), F18 (R18), F19 (R03), F20 (R18), F21 (R18), F22 (R18), F23 (R18), F24 (R18), F25 (R18), F26 (R18), F27 (R18), F28 (docs commit), F29 (R18), F30 (R18), F31 (resolved: GitHub Actions runs on every push), F32 (R06), F33 (R08, R15), F34 (R09 minimum fix; `docker_ps` scoping remains [ASK]).
+- **Not closed by this project:** R07 real captures ([AMINE]); Killercoda publishing ([AMINE]); Pages live enablement ([AMINE]).
+
+### DoD scorecard at `a8cab17`
+
+| # | Verdict | Note |
+|---|---|---|
+| 1 | Met | |
+| 2 | Partial | F0 links to the in-repo viewer; Killercoda URLs target a course that is not published yet ([AMINE]) |
+| 3 | Met | |
+| 4 | Met | |
+| 5 | Met | `canary_reached()` in every lab; Lab 04 retrieval-based; Lab 05 flag gated on the payload |
+| 6 | Met | |
+| 7 | Met | |
+| 8 | Met on paper | All 7 cassettes are `"status": "placeholder"`; real captures are R07 ([AMINE]) |
+| 9 | Met (repo side) | Scenario runs from a fresh clone; publishing is [AMINE] |
+| 10 | Partial | Replay and the defended step run; "secret reaches canary" awaits a real capture ([AMINE]) |
+| 11 | Met (config side) | Setup no longer hides failures; no live Codespaces instance is reachable from this environment |
+| 12 | Partial | `deploy-docs` runs green on every push; the Pages site itself is not enabled from here ([AMINE]) |
+| 13 | Met | Honest wording in README and every intro |
+| 14 | Met | `.planning/no-behavior-change.md` |
+| 15 | Met | WebTool is localhost-only |
+| 16 | Met | |
+
+Tally: 12 met, 3 partial (2, 10, 12), 1 met on paper (8). The three partials and the paper item all block on the same three [AMINE] items, not on the code.
+
+### CI evidence
+
+The org `ci` workflow is green on every commit from R11 forward: R11 `36232301838`, R12 `36233100793`, R13 `36233909578`, R14 `36234396216`, R15-fix `36237209601`, R17 `36237395496`, R18 `36238309889` (all SUCCESS). The R15 run `36236234484` and the R16 run `36237095767` failed on the duplicate-`kill` bug fixed by `11ae129`. The recurring `deploy-docs` failure is the Pages artifact described under [AMINE] items.
+
+### Remaining [AMINE] / [ASK] items
+
+- [AMINE] R07: record real cassettes from a real model endpoint. Until then, replays prove the plumbing, the side effects, and the flag's absence; they cannot prove a capture (spec section 5.6 true-positive side).
+- [AMINE] Killercoda course publishing and URLs (DoD 9/10 delivery; the README already points at the target URLs).
+- [AMINE] GitHub Pages UI enablement (DoD 12; `pages.yml` has `enablement: true`, but the Pages REST API is not reachable from this environment).
+- [ASK] F34 full fix: scope `docker_ps` to the victim containers (changes observable attack behavior; the minimum warning fix landed in R09).
 
 ---
 

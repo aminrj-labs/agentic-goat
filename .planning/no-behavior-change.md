@@ -43,5 +43,16 @@ Additional print-text changes (no behavior change):
   fallback is visible in the transcript. The fallback decision itself was
   already the deterministic brain; only the reported rationale changed.
 
+Path-resolution change (finding F12, final re-assessment):
+
+- **Lab 03, `docuassist_mcp_server.resolve_path`** - now also accepts a
+  leading `sandbox/` prefix, resolving it to the same place as the
+  sandbox-relative form (`sandbox/docs/status-report.md` and
+  `docs/status-report.md` both land in the sandbox). Before the change, the
+  prefixed form returned "path not found", which is exactly what the
+  README's documented prompt produces. No payload text was changed (the
+  [ASK] route), no tool was added or removed, and the recorded cassette is
+  untouched; the documented prompt simply resolves as written.
+
 Everything else is byte-identical to the baseline or added without touching
 an existing input (new defense modules, new CI steps, new documentation).
