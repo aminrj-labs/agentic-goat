@@ -60,7 +60,8 @@ will vary):
 | File | Description |
 |------|-------------|
 | `vulnerable_rag.py` | The deliberately insecure RAG pipeline (`seed` subcommand populates the knowledge base) |
-| `attack1_knowledge_poisoning.py` | Attack 1; also the single definition of the lab flag |
+| `attack1_knowledge_poisoning.py` | Attack 1 (the flag-carrying run) |
+| `canary.py` | The lab flag and the canary check: True when a legitimate query retrieves a poisoned document |
 | `attack2_indirect_injection.py` | Attack 2, four injection variants |
 | `attack3_cross_tenant_leakage.py` | Attack 3 |
 | `hardened_rag.py` | All five defense layers combined |
@@ -98,18 +99,20 @@ semantic-injection deep dive, and the embedding math.
 
 Capture the flag `AGENTICGOAT{04_rag-poisoning}`.
 
-The flag is defined in `attack1_knowledge_poisoning.py`. You capture it when
-the poisoned knowledge base flips a legitimate financial query: the RAG
-answer to a normal question (for example "What was company revenue in Q4
-2025?") contains the fabricated poisoned figures ($8.3M revenue, -$13.8M net
-loss, restatement language) instead of the legitimate seeded figures ($24.7M
-revenue, $6.5M profit), and the script prints the `FLAG CAPTURED` line
-alongside the `POISONING SUCCESS` verdict.
+The flag is defined in `canary.py`. You capture it when the poisoned
+knowledge base flips retrieval: the RAG pipeline's retrieval for a normal
+question (for example "What was company revenue in Q4 2025?") now returns the
+poisoned documents instead of the legitimate seeded summary. The vulnerable
+pipeline records each retrieval to `state/retrievals.jsonl`, and the check is
+deterministic (vector similarity), so it works on a replay exactly as on a
+live run and never parses what the model said. When it triggers, the script
+prints the `FLAG CAPTURED` line alongside the `POISONING CONFIRMED` verdict.
 
-Capturing it proves the full PoisonedRAG chain: the injected documents won
-retrieval for the target query and were generated as authoritative
-corrections, with no attacker access to the model, the code, or the
-retrieval layer.
+Capturing it proves the retrieval half of the PoisonedRAG chain with no
+model output at all: the injected documents won retrieval for the target
+query, with no attacker access to the model, the code, or the retrieval
+layer. Whether the model then repeats the fabricated figures (the generation
+condition) is reported as a diagnostic next to each answer.
 
 Attack 2 and Attack 3 have their own success verdicts (`INJECTION
 INDICATORS DETECTED`, `DATA LEAKAGE CONFIRMED`) and are part of the lab, but

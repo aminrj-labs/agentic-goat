@@ -17,11 +17,7 @@ OWASP: LLM08:2025 · LLM04:2025
 MITRE ATLAS: AML.T0043 · AML.T0049
 """
 
-from vulnerable_rag import ingest_documents, ask
-
-# The lab canary. Defined in this one place and revealed only when the
-# poisoned knowledge base flips a legitimate query to fabricated figures.
-FLAG = "AGENTICGOAT{04_rag-poisoning}"
+from vulnerable_rag import ask, ingest_documents, reset_retrieval_log
 
 
 # ── Poisoned documents ─────────────────────────────────────────────────────────
@@ -103,6 +99,8 @@ def demonstrate_attack() -> None:
         "What are the latest financial results?",
     ]
 
+    reset_retrieval_log()
+
     for query in queries:
         print(f"\n{'─' * 60}")
         print(f"Query: {query}")
@@ -110,12 +108,23 @@ def demonstrate_attack() -> None:
         answer = ask(query)
         print(f"\n[Answer]\n{answer}")
 
-        # Flag if poisoned figures appear in the response
-        if any(marker in answer for marker in ["$8.3M", "8.3", "-$13.8", "restatement", "CORRECTED"]):
-            print("\n  ⚠️  POISONING SUCCESS — fabricated figures in response")
-            print(f"  FLAG CAPTURED: {FLAG}")
+        # Diagnostic only: the flag is decided by the canary check below,
+        # never by parsing the model's answer.
+        if any(marker in answer for marker in ["$8.3M", "-$13.8", "restatement"]):
+            print("\n  (diagnostic) fabricated figures appear in the model's answer")
         elif "$24.7" in answer:
-            print("\n  ✅ LEGITIMATE DATA — correct figures returned")
+            print("\n  (diagnostic) legitimate figures in the model's answer")
+
+    from canary import FLAG, canary_reached
+
+    if canary_reached():
+        print("\n" + "=" * 60)
+        print("  ⚠️  POISONING CONFIRMED — legitimate queries now retrieve")
+        print("  the poisoned documents from the knowledge base")
+        print(f"  FLAG CAPTURED: {FLAG}")
+    else:
+        print("\n  no poisoned document was retrieved by these queries;")
+        print("  the legitimate data still wins retrieval")
 
 
 if __name__ == "__main__":

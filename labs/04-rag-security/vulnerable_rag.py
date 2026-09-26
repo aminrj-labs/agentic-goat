@@ -18,8 +18,12 @@ VULNERABILITIES (intentional):
 DO NOT use this code in production.
 """
 
+import datetime
+import json
 import os
 import sys
+from pathlib import Path
+
 import chromadb
 from chromadb.utils import embedding_functions
 from openai import OpenAI
@@ -29,6 +33,30 @@ CHROMA_DIR       = "./chroma_db"
 COLLECTION_NAME  = "company_docs"
 LM_STUDIO_URL    = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
 TOP_K            = 3
+
+# Durable retrieval log: every retrieval records the query and the document
+# ids it returned. This is the canary signal for Attack 1 (see canary.py):
+# legitimate queries retrieving poisoned documents is the observable side
+# effect of knowledge-base poisoning, and it is deterministic (vector
+# similarity), so it is detectable on a replay without any model output.
+RETRIEVAL_LOG = Path(__file__).resolve().parent / "state" / "retrievals.jsonl"
+
+
+def log_retrieval(query: str, retrieved_ids: list[str]) -> None:
+    RETRIEVAL_LOG.parent.mkdir(parents=True, exist_ok=True)
+    entry = {
+        "ts": datetime.datetime.now().isoformat(),
+        "query": query,
+        "retrieved": retrieved_ids,
+    }
+    with open(RETRIEVAL_LOG, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
+def reset_retrieval_log() -> None:
+    """Start a fresh retrieval log for the current run."""
+    RETRIEVAL_LOG.parent.mkdir(parents=True, exist_ok=True)
+    RETRIEVAL_LOG.write_text("", encoding="utf-8")
 
 # Auto-detect whichever model is loaded in LM Studio; fall back to the default.
 # Override by setting the LM_STUDIO_MODEL env var: LM_STUDIO_MODEL=my-model python ...
@@ -108,7 +136,10 @@ def retrieve(query: str, n_results: int = TOP_K) -> list[str]:
         query_texts=[query],
         n_results=n_results,
     )
-    return results["documents"][0] if results["documents"] else []
+    docs = results["documents"][0] if results["documents"] else []
+    ids = results["ids"][0] if results.get("ids") else []
+    log_retrieval(query, ids)
+    return docs
 
 
 # ── Generation (NO OUTPUT FILTERING — VULNERABLE) ────────────────────────────

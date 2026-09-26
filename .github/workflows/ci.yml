@@ -160,7 +160,7 @@ jobs:
       - name: Lab 04 - cassette integrity (no chromadb in CI)
         working-directory: labs/04-rag-security
         run: |
-          python3 -m py_compile attack1_knowledge_poisoning.py cassette.py vulnerable_rag.py
+          python3 -m py_compile attack1_knowledge_poisoning.py cassette.py vulnerable_rag.py canary.py
           python3 - <<'EOF'
           from cassette import Cassette
 
@@ -174,6 +174,13 @@ jobs:
           for m in ["$8.3M", "-$13.8", "restatement", "CORRECTED", "$24.7"]:
               assert m not in text, "placeholder leaks a grading marker"
           print("Lab 04: cassette replays cleanly, placeholder carries no markers")
+          EOF
+          python3 - <<'EOF'
+          # canary.py must stay importable without chromadb (it is asserted
+          # here on every run); a fresh checkout records no retrievals.
+          from canary import canary_reached
+          assert not canary_reached(), "fresh checkout must not show a poisoned retrieval"
+          print("Lab 04: canary check is importable without chromadb; no poisoned retrieval on a fresh checkout")
           EOF
 
       - name: Lab 05 - replay memory poisoning (no model)
