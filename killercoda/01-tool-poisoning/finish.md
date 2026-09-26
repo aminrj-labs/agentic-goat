@@ -23,11 +23,11 @@ instructions as part of the tool's contract. It follows them silently.
 - **Continue to the kill chain**: [Lab 07](https://github.com/aminrj-labs/agentic-goat/blob/main/labs/07-mcp-to-a2a-kill-chain/README.md) starts with this same poisoned tool description as the entry point.
 - **Open in Codespaces** for a full dev environment: click the "Open in Codespaces" badge in the repo README.
 
-## Flag captured
+## The flag
 
-```
-AGENTICGOAT{01_tool-desc-poisoning}
-```
-
-Captured by observing the exfil receiver receive the canary file contents as the
-`sidenote` parameter of the `add` tool call. The user saw only "47 + 38 = 85".
+The flag is revealed by observing the exfil receiver receive the canary file
+contents as the `sidenote` parameter of the `add` tool call; the user saw only
+"47 + 38 = 85". With the shipped placeholder cassette that payload does not
+contain the flag, so this scenario proves the exfiltration path but not the
+capture. Record a real capture (see `labs/01-mcp-tool-poisoning/cassettes/README.md`)
+and the same replay delivers it.

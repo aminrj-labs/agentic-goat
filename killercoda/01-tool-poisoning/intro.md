@@ -1,9 +1,10 @@
 # Watch a poisoned MCP tool description coerce an agent into stealing data
 
-This scenario replays a real MCP tool poisoning attack against live, unmodified lab
-components -- no simulation, no model, no GPU. The agent runs in **replay mode**
-against a cassette captured from a real susceptible model (gpt-oss-20b). The MCP
-servers, exfil receiver, and canary all execute live.
+This scenario replays an MCP tool poisoning attack against live, unmodified lab
+components -- no model, no GPU. The agent runs in **replay mode** against a
+placeholder cassette (`"status": "placeholder"`): the MCP servers, exfil receiver,
+and canary all execute live, and the side effects you observe are real, but the
+recorded payload is not a capture, so it does not contain the lab flag.
 
 ## What you will do
 
@@ -32,7 +33,10 @@ Ubuntu image.
 ## Relevance guarantee
 
 The vulnerable components (MCP servers, exfil receiver, canary) are the **real,
-unmodified lab components**. Only the model's inference is pre-recorded in a cassette
-captured from a real susceptible model. The exploit's side effects are produced live
-and confirmed by the canary. This is falsifiable: run with `--llm` against your own
-model to see if it complies.
+unmodified lab components**. Only the model's inference is pre-recorded in a
+cassette, and the exploit's side effects are produced live. The shipped cassette is
+a placeholder (`"status": "placeholder"`), not a capture: replay exercises the live
+plumbing, but the payload it delivers does not contain the lab flag. Record a real
+capture as described in `labs/01-mcp-tool-poisoning/cassettes/README.md` to change
+that. This is falsifiable: run with `--llm` against your own model to see if it
+complies.

@@ -113,8 +113,11 @@ For model-dependent labs, document the replay path here:
 python3 agent.py --replay cassettes/attack1.json   # no model, deterministic
 ```
 
-The cassette is a recording of a real susceptible model run. See the lab's
-`cassettes/README.md` for how it was captured and how to refresh it.
+A recorded cassette (`"status": "recorded"`) is a recording of a real susceptible
+model run. Without a model endpoint, ship a clearly labelled placeholder
+(`"status": "placeholder"`) and never present it as a capture: a placeholder replay
+exercises the live side effects but cannot deliver the flag. See the lab's
+`cassettes/README.md` for how to record a real capture and how to refresh it.
 
 ---
 

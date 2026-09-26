@@ -113,9 +113,11 @@ Zero install. No GPU. No API keys. Three tiers, from "watch in 30 seconds" to
 
 > **Relevance guarantee.** The vulnerable components (MCP servers, exfil receivers,
 > canaries) are the real, unmodified lab code. For model-dependent labs, only the
-> model's inference is pre-recorded in a cassette captured from a real susceptible
-> model (gpt-oss-20b). The exploit's side effects are produced live and confirmed by
-> the canary. F2 lets anyone reproduce the whole thing against their own real model.
+> model's inference is pre-recorded in a cassette, and the exploit's side effects are
+> produced live. The cassettes shipped today are labelled `"status": "placeholder"`:
+> replay exercises the live plumbing, but it is not a capture, so the canary flag is
+> not delivered until a real capture is recorded. F2 lets anyone reproduce the whole
+> thing against their own real model.
 
 [![Open in Codespaces](https://img.shields.io/badge/Open_in_Codespaces-0078D6?style=flat&logo=visualstudiocode&logoColor=white)](https://codespaces.new/aminrj-labs/agentic-goat?devcontainer=.devcontainer/devcontainer.json)
 
@@ -149,8 +151,8 @@ Common to every lab:
 - **Node.js 18+** (labs that use npm-based MCP servers or Promptfoo)
 
 A capable instruction model with reliable function calling. `qwen2.5-7b-instruct`
-is the baseline; some attacks only comply with a stronger model such as
-`gpt-oss-20b`. Larger models generally reproduce the attacks more reliably.
+is the baseline; some attacks only comply with a stronger model. Larger models
+generally reproduce the attacks more reliably.
 
 Model-independent labs (Lab 07 today) need none of this. They run live and
 deterministic on the Python standard library, with no model and no download.
