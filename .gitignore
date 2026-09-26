@@ -25,6 +25,9 @@
 
 # Lab runtime artifacts (regenerated on each run; not source)
 **/whatsapp_stub.log
+**/exfil.out
+labs/07-mcp-to-a2a-kill-chain/undefended.log
+labs/07-mcp-to-a2a-kill-chain/defended.log
 **/venv/
 labs/03-red-team-assessment/email_log.txt
 # only the runtime-created doc; q1-status-report.md and deployment-guide.md are fixtures
