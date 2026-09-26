@@ -10,8 +10,13 @@ Stdlib + pytest only; no network, no model.
 
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
+from pathlib import Path
+
 from defenses import Controls
-from killchain import run_chain
+from killchain import EXFIL_STATE, FLAG, HR_RECORD, run_chain
 
 
 def _stage(run, n):
@@ -71,3 +76,34 @@ def test_stage1_always_lands_deterministically():
     A2A controls (those act later). It should land in every configuration."""
     for controls in (Controls.none(), Controls.all()):
         assert _stage(run_chain(controls), 1).attacker_succeeded
+
+
+def test_defended_sink_is_empty_and_exit_codes():
+    """The exact contract CI and the Killercoda step 3 rely on: the CLI exits
+    1 on a compromise and 0 when defended, and the exfil sink exists after
+    every run -- full of the stolen data and the flag when undefended, and
+    provably empty when defended. A missing sink here is the bug that used to
+    crash the CI step with FileNotFoundError."""
+    lab = Path(__file__).resolve().parent
+
+    undefended = subprocess.run(
+        [sys.executable, str(lab / "run_chain.py")],
+        cwd=lab,
+        capture_output=True,
+        text=True,
+    )
+    assert undefended.returncode == 1, undefended.stdout + undefended.stderr
+    sink = json.loads(EXFIL_STATE.read_text())
+    assert HR_RECORD in sink, "undefended run must exfiltrate the HR record"
+    assert FLAG in sink, "undefended run must write the canary flag to the sink"
+
+    defended = subprocess.run(
+        [sys.executable, str(lab / "run_chain.py"), "--defended"],
+        cwd=lab,
+        capture_output=True,
+        text=True,
+    )
+    assert defended.returncode == 0, defended.stdout + defended.stderr
+    sink = json.loads(EXFIL_STATE.read_text())
+    assert sink == [], "defended run must leave the exfil sink empty"
+    assert FLAG not in sink

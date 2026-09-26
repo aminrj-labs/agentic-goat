@@ -114,10 +114,15 @@ class KillChain:
         self._malicious_server_present = True
 
     def _reset_state(self) -> None:
+        import json
+
         STATE_DIR.mkdir(exist_ok=True)
         for p in (REGISTRY_STATE, EXFIL_STATE):
             if p.exists():
                 p.unlink()
+        # The sink must exist after every reset, even when the run exfiltrates
+        # nothing: CI and the test suite read the file to prove the sink is empty.
+        EXFIL_STATE.write_text(json.dumps([], indent=2))
 
     def _exfil(self, data: str) -> None:
         import json
