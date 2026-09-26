@@ -3,7 +3,8 @@
 The undefended run is the attack. Every stage succeeds.
 
 ```bash
-cd /home/user/agentic-goat/labs/07-mcp-to-a2a-kill-chain
+git clone https://github.com/aminrj-labs/agentic-goat.git "$HOME/agentic-goat"
+cd "$HOME/agentic-goat/labs/07-mcp-to-a2a-kill-chain"
 python3 run_chain.py
 ```
 

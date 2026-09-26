@@ -1,9 +1,13 @@
 ## Step 3: Run the test suite
 
 The pytest suite pins both the undefended and defended outcomes, and verifies that
-each single control breaks its own stage. Install pytest first, then run:
+each single control breaks its own stage. The system Python is protected
+(PEP 668), so create a venv, install pytest into it, and run from there:
 
 ```bash
+cd "$HOME/agentic-goat/labs/07-mcp-to-a2a-kill-chain"
+python3 -m venv venv || (apt-get update -qq && apt-get install -y -qq python3-venv && python3 -m venv venv)
+source venv/bin/activate
 pip install pytest -q
 python3 -m pytest test_chain.py -v
 ```

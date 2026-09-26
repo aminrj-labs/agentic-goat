@@ -8,7 +8,7 @@ recorded payload is not a capture, so it does not contain the lab flag.
 
 ## What you will do
 
-1. Install dependencies and create the synthetic canary file.
+1. Clone the repository, install dependencies, and create the synthetic canary file.
 2. Replay the attack: the agent reads the canary and passes it silently to the attacker.
 3. Watch the exfiltration arrive at the localhost receiver.
 
@@ -27,8 +27,9 @@ teaches, and the entry point to the full kill chain in [Lab 07](https://github.c
 
 ## Prerequisites
 
-None. Just this terminal. Python 3.11+, Node.js 18+, and pip are pre-installed on the
-Ubuntu image.
+None. Just this terminal. Python 3.11+ and Node.js 18+ are pre-installed on the
+Ubuntu image; step 1 creates the venv (installing `python3-venv` first if it is
+missing).
 
 ## Relevance guarantee
 

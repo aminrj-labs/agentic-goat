@@ -3,6 +3,7 @@
 Now enable every control and watch the chain break at stage 2.
 
 ```bash
+cd "$HOME/agentic-goat/labs/07-mcp-to-a2a-kill-chain"
 python3 run_chain.py --defended
 ```
 
