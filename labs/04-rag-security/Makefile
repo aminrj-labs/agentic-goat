@@ -2,7 +2,7 @@
 #
 # Requires:
 #   - Python 3.11+  virtual environment activated (source venv/bin/activate)
-#   - LM Studio serving qwen2.5-7b-instruct on localhost:1234
+#   - A local LLM endpoint (Ollama :11434 by default, or LM Studio via LLM_BASE_URL)
 
 .PHONY: help setup verify seed reset attack1 attack2 attack3 exfil \
         compare compare-attack1 compare-attack3 \
@@ -48,7 +48,7 @@ reset:                 ## Wipe ChromaDB and re-seed with clean legitimate docume
 	@echo "✅  Knowledge base reset to clean state"
 
 # ──────────────────────────────────────────────────────────────────────────────
-attack1:               ## Attack 1 — Knowledge Base Poisoning (95% success)
+attack1:               ## Attack 1 — Knowledge Base Poisoning
 	@echo "=== Attack 1: Knowledge Base Poisoning ==="
 	$(PYTHON) attack1_knowledge_poisoning.py
 
@@ -56,7 +56,7 @@ attack2:               ## Attack 2 — Indirect Prompt Injection (all 4 variants
 	@echo "=== Attack 2: Indirect Prompt Injection ==="
 	$(PYTHON) attack2_indirect_injection.py
 
-attack3:               ## Attack 3 — Cross-Tenant Data Leakage (100% success)
+attack3:               ## Attack 3 — Cross-Tenant Data Leakage
 	@echo "=== Attack 3: Cross-Tenant Data Leakage ==="
 	$(PYTHON) attack3_cross_tenant_leakage.py
 

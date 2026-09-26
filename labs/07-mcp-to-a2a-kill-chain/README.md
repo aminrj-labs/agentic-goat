@@ -42,12 +42,12 @@ defences actually turn on (see [`a2a/`](a2a/)).
 Undefended, all five stages succeed and HR data reaches the exfil sink:
 
 ```
-Stage 1 — Tool description poisoning      attacker: followed hidden instruction
-Stage 2 — Rogue A2A agent registration    attacker: registered 'summariser-helper' (unverified)
-Stage 3 — Routing hijack                  attacker: routed 'document.summarise' -> 'summariser-helper'
-Stage 4 — Lateral movement + exfiltration attacker: rogue invoked 'hr.read' -> exfiltrated: EMP-4471 ...
-Stage 5 — Persistence after server removal attacker: rogue registration persists and remains routable
-RESULT: chain completed — HR data exfiltrated.   (exit code 1)
+Stage 1 - Tool description poisoning      attacker: followed hidden instruction
+Stage 2 - Rogue A2A agent registration    attacker: registered 'summariser-helper' (unverified)
+Stage 3 - Routing hijack                  attacker: routed 'document.summarise' -> 'summariser-helper'
+Stage 4 - Lateral movement + exfiltration attacker: rogue invoked 'hr.read' -> exfiltrated: EMP-4471 ...
+Stage 5 - Persistence after server removal attacker: rogue registration persists and remains routable
+RESULT: chain completed - HR data exfiltrated.   (exit code 1)
 ```
 
 The point of the lab is not the attack: it is that the *same* attack code,
@@ -66,23 +66,6 @@ make card       # RESULT: chain broken at Stage 2
 make authz      # RESULT: chain broken at Stage 4
 make blast      # RESULT: chain broken at Stage 4
 ```
-
-Being explicit, because the honesty is the point of a security lab:
-
-- **The A2A trust mechanics are real logic**, not narration. Card signing
-  and verification, the registry's accept/reject decision, skill routing, the
-  authorization allow-list, the circuit breaker, and on-disk persistence are
-  all executable and independently testable
-  ([`test_chain.py`](test_chain.py)).
-- **Signing uses HMAC, not PKI/JWS.** A stand-in with the one property that
-  matters: a signature either chains to a key you hold or it does not.
-  Swapping in real asymmetric signatures does not change any stage's
-  outcome.
-- **Stage 1's injection is deterministic by default.** That a model *will*
-  obey an instruction hidden in a tool description is demonstrated against a
-  real local LLM in Labs 01 and 06. Lab 07's contribution is what a
-  successful injection *leads to*: the A2A propagation, which is
-  deterministic control-plane logic.
 
 ### Files
 
@@ -238,7 +221,10 @@ python3 run_chain.py --llm
 
 `--llm` drives stage 1 against a real endpoint (`LLM_BASE_URL`,
 `MODEL`; Ollama default) so you can watch a real model follow the hidden
-instruction. Stages 2 to 5 are identical with or without it.
+instruction. Stages 2 to 5 are identical with or without it. If the
+endpoint is unreachable or `openai` is not installed, stage 1 falls back to
+the deterministic brain and its detail line says so (FELL BACK), instead of
+failing silently.
 
 Reading the run, honestly:
 

@@ -50,14 +50,7 @@ Attack 4: 15-20 benign padding turns  ->  system prompt sits deep in
          context  ->  constraints the model enforced at turn 1 no longer hold
 ```
 
-Per-attack framework mapping (kept from the lab's own assessment):
-
-| Attack | OWASP LLM 2025 | OWASP Agentic Top 10 | MITRE ATLAS |
-|---|---|---|---|
-| 1 | LLM04: Data/Model Poisoning | ASI06 Memory and Context Poisoning | AML.T0043 |
-| 2 | LLM01: Prompt Injection | ASI06 Memory and Context Poisoning | AML.T0051 |
-| 3 | LLM01: Prompt Injection | ASI07 Insecure Inter-Agent Communication | AML.T0054 |
-| 4 | LLM01: Prompt Injection | ASI01 Agent Goal Hijack | AML.T0051 |
+Per-attack framework mapping: see the Framework mapping section below.
 
 ### Files
 
@@ -133,6 +126,15 @@ normal answers.
 - OWASP Agentic Top 10: ASI06 Memory and Context Poisoning
 - OWASP LLM Top 10: LLM04 Data and Model Poisoning, LLM01 Prompt Injection
 - MITRE ATLAS: AML.T0043 Craft Adversarial Data, AML.T0051 Indirect Prompt Injection
+
+Per-attack mapping (kept from the lab's own assessment):
+
+| Attack | OWASP LLM 2025 | OWASP Agentic Top 10 | MITRE ATLAS |
+|---|---|---|---|
+| 1 | LLM04: Data/Model Poisoning | ASI06 Memory and Context Poisoning | AML.T0043 |
+| 2 | LLM01: Prompt Injection | ASI06 Memory and Context Poisoning | AML.T0051 |
+| 3 | LLM01: Prompt Injection | ASI07 Insecure Inter-Agent Communication | AML.T0054 |
+| 4 | LLM01: Prompt Injection | ASI01 Agent Goal Hijack | AML.T0051 |
 
 ---
 

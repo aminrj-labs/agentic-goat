@@ -118,6 +118,11 @@ Attack 2 and Attack 3 have their own success verdicts (`INJECTION
 INDICATORS DETECTED`, `DATA LEAKAGE CONFIRMED`) and are part of the lab, but
 they do not carry the flag.
 
+**First-run note:** the pipeline embeds with `all-MiniLM-L6-v2`, which
+chromadb downloads from Hugging Face on first use. The first run (replay or
+live) therefore needs network access for that one download; afterwards the
+embedding model is cached and the lab is fully local.
+
 ---
 
 ## Framework mapping

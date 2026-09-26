@@ -50,12 +50,12 @@ reset:                   ## Wipe memory/ and re-seed with clean baseline
 	@echo "✅  Memory reset to clean state"
 
 # ──────────────────────────────────────────────────────────────────────────────
-attack1:                 ## Attack 1 — External Memory Poisoning (85–95% success)
+attack1:                 ## Attack 1 — External Memory Poisoning
 	@echo "=== Attack 1: External Memory Poisoning ==="
 	@echo "⚠️  Start 'make exfil' in a separate terminal to capture exfiltrated data"
 	$(PYTHON) attack1_external_memory_poison.py
 
-attack2:                 ## Attack 2 — Conversational Memory Poisoning (55–75% success)
+attack2:                 ## Attack 2 — Conversational Memory Poisoning
 	@echo "=== Attack 2: Conversational Memory Poisoning ==="
 	$(PYTHON) attack2_conversational_memory_poison.py
 

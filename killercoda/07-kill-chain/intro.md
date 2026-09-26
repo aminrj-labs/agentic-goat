@@ -1,4 +1,4 @@
-# Watch a five-stage kill chain play out — no model, no GPU, no setup
+# Watch a five-stage kill chain play out - no model, no GPU, no setup
 
 This scenario runs the **MCP to A2A Kill Chain** (Lab 07) live and deterministically.
 Stages 2 to 5 are real control-plane logic on the Python standard library -- no model,

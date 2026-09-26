@@ -54,12 +54,12 @@ def main() -> int:
 
     for r in run.results:
         mark = f"{RED}✓ attacker{RESET}" if r.attacker_succeeded else f"{GREEN}✗ blocked{RESET}"
-        print(f"  Stage {r.number} — {r.name}")
+        print(f"  Stage {r.number} - {r.name}")
         print(f"    {DIM}{r.asi}{RESET}")
         print(f"    {mark}: {r.detail}\n")
 
     if run.compromised:
-        print(f"{RED}{BOLD}RESULT: chain completed — HR data exfiltrated.{RESET}")
+        print(f"{RED}{BOLD}RESULT: chain completed - HR data exfiltrated.{RESET}")
         broke_at = None
     else:
         broke_at = next((r.number for r in run.results if not r.attacker_succeeded), None)

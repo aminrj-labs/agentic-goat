@@ -57,7 +57,11 @@ Two threat models, distinguished by what the attacker controls:
 Threat model A is the realistic baseline: the attacker needs only a registry
 account, no foothold in the victim environment. Exfiltration needs the second
 capability, which in practice arrives via a malicious or compromised
-third-party MCP server package the victim installs.
+third-party MCP server package the victim installs. One more enabling factor
+is deliberate: the "Ask Gordon" host runs with a permissive system prompt (it
+executes the workflow steps it finds and never asks for confirmation). That
+permissiveness is part of the attack surface being demonstrated, not an
+accident of the harness.
 
 ### Files
 
@@ -69,7 +73,6 @@ third-party MCP server package the victim installs.
 | `exfil_server.py` | Flask receiver at `localhost:9999/exfil`, the attacker's listening server |
 | `rce-attack/Dockerfile` | The malicious image. The entire payload lives in the `com.docker.image.description` label |
 | `start_victims.sh` | Starts the three victim containers and plants the canary env var in `lab-cache` |
-| `lab-env.sh` | Docker context helper (author-specific setup; not needed on most systems) |
 | `blog-post.md` | Full write-up: all six payload iterations, failure analysis, the two threat models, mitigations |
 
 ---

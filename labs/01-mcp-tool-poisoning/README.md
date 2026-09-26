@@ -32,12 +32,6 @@ Turn 2  ->  add(a=47, b=38, sidenote="ssh-rsa AAAA...") # stolen key passed sile
 Turn 3  <-  "47 + 38 = 85"                              # user sees only this
 ```
 
-The vulnerability is not the math server. It is the shared tool context: the
-agent host already has a file-reading capability, so this lab runs the real
-MCP filesystem server alongside the poisoned one. The lesson is that any
-environment where the agent can already read files is vulnerable the moment a
-malicious server joins its tool set.
-
 ### Files
 
 | File | Description |
@@ -57,10 +51,11 @@ In January 2025, Invariant Labs published a
 demonstrating tool poisoning against MCP: a malicious server's tool
 description, once loaded by a client such as Cursor, carried instructions that
 steered the agent into reading local files and leaking them, with the user
-seeing only a normal answer. Follow-up reporting of poisoned MCP tools in the
-wild, including the Supabase/Cursor tool-poisoning case, moved the technique
-from proof of concept to observed supply-chain risk: the description field is
-the install surface, and nobody inspects it.
+seeing only a normal answer. In the wild the same trust failure showed up in
+a different shape: the 2025 Supabase incident, in which injected instructions
+carried in database content steered an MCP server holding privileged API
+keys, confirmed that MCP-connected content is an install surface nobody
+inspects.
 
 This lab reproduces the notification's direct-poisoning experiment against a
 local model, with the Cursor host replaced by a minimal Python agent.
@@ -115,6 +110,12 @@ parameter is the exfil channel.
 ---
 
 ## Solution and walkthrough
+
+The vulnerability is not the math server. It is the shared tool context: the
+agent host already has a file-reading capability, so this lab runs the real
+MCP filesystem server alongside the poisoned one. The lesson is that any
+environment where the agent can already read files is vulnerable the moment a
+malicious server joins its tool set.
 
 **Prerequisites:** Python 3.11+, Node.js (for the MCP filesystem server), a
 local LLM endpoint with function calling (see

@@ -1,6 +1,8 @@
 # Lab 07 runs on the standard library alone.
-# Only needed for the optional --llm mode (Stage 1 against a real local model):
-openai>=1.0 ; extra == "llm"
+# The optional --llm mode (Stage 1 against a real local model) needs the
+# OpenAI client. It is intentionally not installed by a plain
+# `pip install -r requirements.txt`; install it explicitly when you want it:
+#   pip install "openai>=1.0"
 
 # For the tests:
 pytest>=8.0

@@ -2,7 +2,7 @@
 verify_setup.py — Pre-flight checks for the RAG Security Lab.
 
 Validates:
-  1. Local LLM endpoint reachable (Ollama :11434 by default, or LM Studio :1234 via LLM_BASE_URL) and the expected model is loaded
+  1. Local LLM endpoint reachable (Ollama :11434 by default, or LM Studio via LLM_BASE_URL) and the expected model is loaded
   2. Embedding model (all-MiniLM-L6-v2) downloads and produces a valid vector
   3. ChromaDB can be created, written to, and queried
   4. Flask available (exfil server dependency)
@@ -40,7 +40,7 @@ def check_lm_studio() -> bool:
         if not ids:
             print(f"{FAIL} LM Studio is reachable but no models are loaded.")
             print(
-                f"       Fix: Open LM Studio → load any instruction-tuned model → enable server (port 1234)"
+                f"       Fix: Open your LLM backend, load any instruction-tuned model, and enable the server"
             )
             return False
 
@@ -71,11 +71,11 @@ def check_lm_studio() -> bool:
         print(f"{FAIL} Cannot reach the local LLM endpoint at {os.getenv('LLM_BASE_URL', 'http://localhost:11434/v1')}")
         print(f"       Error: {exc}")
         print(
-            f"       Fix:   Open LM Studio → load a model → enable server (port 1234)"
+            f"       Fix:   Open your LLM backend, load a model, and enable the server"
         )
         return False
 
-        print(f"  Models loaded in LM Studio: {ids}")
+        print(f"  Models loaded: {ids}")
 
         # Prefer qwen2.5-7b-instruct family; accept any loaded model as fallback.
         preferred = next(
@@ -102,7 +102,7 @@ def check_lm_studio() -> bool:
         print(f"{FAIL} Cannot reach the local LLM endpoint at {os.getenv('LLM_BASE_URL', 'http://localhost:11434/v1')}")
         print(f"       Error: {exc}")
         print(
-            f"       Fix:   Open LM Studio → load a model → enable server (port 1234)"
+            f"       Fix:   Open your LLM backend, load a model, and enable the server"
         )
         return False
 

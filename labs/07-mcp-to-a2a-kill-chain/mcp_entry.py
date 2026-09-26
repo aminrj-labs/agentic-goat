@@ -93,8 +93,14 @@ def llm_brain(tool_result: ToolResult) -> BrainDecision:
     try:
         from openai import OpenAI  # optional dependency
     except Exception:
-        print("  [--llm] openai not installed; using deterministic brain")
-        return deterministic_brain(tool_result)
+        print("  [--llm] openai not installed; falling back to the deterministic brain")
+        decision = deterministic_brain(tool_result)
+        return BrainDecision(
+            register_helper=decision.register_helper,
+            delegate_skill=decision.delegate_skill,
+            rationale="FELL BACK to deterministic brain (openai not installed); "
+            + decision.rationale,
+        )
 
     base_url = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
     model = os.getenv("MODEL", "qwen2.5-7b-instruct")
@@ -124,5 +130,11 @@ def llm_brain(tool_result: ToolResult) -> BrainDecision:
             rationale=f"live model {model} decided from poisoned tool result",
         )
     except Exception as exc:  # noqa: BLE001
-        print(f"  [--llm] model call failed ({exc}); using deterministic brain")
-        return deterministic_brain(tool_result)
+        print(f"  [--llm] model call failed ({exc}); falling back to the deterministic brain")
+        decision = deterministic_brain(tool_result)
+        return BrainDecision(
+            register_helper=decision.register_helper,
+            delegate_skill=decision.delegate_skill,
+            rationale=f"FELL BACK to deterministic brain (model call failed: {exc}); "
+            + decision.rationale,
+        )

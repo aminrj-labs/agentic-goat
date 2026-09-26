@@ -33,7 +33,7 @@ it is the "when I read ASI03, there is a Goat scenario waiting" crosswalk.
 |---|---|---|---|
 | ASI01 | Agent Goal Hijack | Indirect prompt injection via tool output and RAG ([Lab 04](./labs/04-rag-security/)) | Complete |
 | ASI02 / MCP03 | Tool Misuse and Exploitation, Tool Poisoning | Poisoned tool description to silent file read and exfil ([Lab 01](./labs/01-mcp-tool-poisoning/)); cross-server poisoning ([Lab 06](./labs/06-ASI02-cross-server-mcp-poisoning/)) | Complete |
-| ASI02 / MCP03 | Cross-server shadowing | One server's description hijacks another's tool ([Lab 01b](./labs/01b-cross-server-shadowing/)) | Partial |
+| ASI02 / MCP03 | Cross-server shadowing | One server's tool result hijacks another server's tool ([Lab 01b](./labs/01b-cross-server-shadowing/)) | Partial |
 | ASI03 / MCP01, MCP02, MCP07 | Identity and Privilege Abuse | Over-broad capability, token theft from context, scope creep | Planned |
 | ASI04 / MCP04 | Agentic Supply Chain | Container-metadata injection ([Lab 02](./labs/02-docker-dash/)); MCP-registry angle | Partial |
 | ASI05 / MCP05 | Unexpected Code Execution | Agent-generated code, command injection through a tool | Planned |

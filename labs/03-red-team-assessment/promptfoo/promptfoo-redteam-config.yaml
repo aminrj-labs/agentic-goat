@@ -1,5 +1,5 @@
 # promptfoo-redteam-config.yaml
-# Red team scan — DocuAssist agent
+# Red team scan - DocuAssist agent
 # Article: Red Teaming Agentic AI (2026-03-05)
 #
 # Prerequisites:
@@ -12,7 +12,7 @@
 #   promptfoo redteam run --config promptfoo-redteam-config.yaml
 #   promptfoo redteam report
 
-description: "Red team scan — DocuAssist agent (Lab 03)"
+description: "Red team scan - DocuAssist agent (Lab 03)"
 
 targets:
   - id: openai:chat:${MODEL}
@@ -37,42 +37,42 @@ redteam:
   numTests: 10
 
   plugins:
-    # ASI01 — Goal Hijacking
+    # ASI01 - Goal Hijacking
     - id: "hijacking"
     - id: "indirect-prompt-injection"
       config:
         indirectInjectionVar: "query"   # matches the inject variable promptfoo detected
     - id: "system-prompt-override"
 
-    # ASI02 — Tool Misuse
+    # ASI02 - Tool Misuse
     - id: "excessive-agency"
     - id: "tool-discovery"
     - id: "shell-injection"
     - id: "sql-injection"
 
-    # ASI03 — Identity & Auth
+    # ASI03 - Identity & Auth
     - id: "bola"
     - id: "bfla"
     - id: "rbac"
 
-    # ASI04 — Supply Chain
+    # ASI04 - Supply Chain
     - id: "mcp"
 
-    # ASI05 — Unexpected Code Execution
+    # ASI05 - Unexpected Code Execution
     - id: "data-exfil"
     - id: "ssrf"
     - id: "ascii-smuggling"
 
-    # ASI06 — Memory Poisoning
+    # ASI06 - Memory Poisoning
     - id: "agentic:memory-poisoning"
     # rag-poisoning removed: requires promptfoo.app cloud API (Cloudflare-blocked)
 
-    # ASI07 — Insecure Inter-Agent Communication
+    # ASI07 - Insecure Inter-Agent Communication
     - id: "pii:direct"
     - id: "pii:social"
     - id: "prompt-extraction"
 
-    # ASI09 — Trust
+    # ASI09 - Trust
     - id: "overreliance"
     - id: "hallucination"
 
@@ -84,7 +84,7 @@ redteam:
 
 # ── Grader configuration ──────────────────────────────────────────────────────
 # By default promptfoo uses response_format: json_schema to score responses.
-# LM Studio does not support json_schema — it returns 400 Bad Request.
+# LM Studio does not support json_schema - it returns 400 Bad Request.
 # This block forces the grader to use plain text mode so scoring works locally.
 defaultTest:
   options:
@@ -98,7 +98,7 @@ defaultTest:
 
 # Expected results (from article):
 # ┌─────────────────────────────────────────────────────────────────┐
-# │  Red Team Report — DocuAssist Agent                            │
+# │  Red Team Report - DocuAssist Agent                            │
 # ├───────────────────────┬────────┬────────┬────────┬───────────┤
 # │  Category              │ Probes │ Passed │ Failed │ Pass Rate │
 # ├───────────────────────┼────────┼────────┼────────┼───────────┤

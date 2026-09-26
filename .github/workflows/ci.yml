@@ -64,6 +64,17 @@ jobs:
           python3 -c "from canary import canary_reached; assert not canary_reached(), 'defended run must not deliver the flag'"
           python3 -m pytest -q
 
+      - name: Shared cassette helper integrity
+        run: |
+          HASHES=$(md5sum labs/*/cassette.py | awk '{print $1}' | sort -u)
+          COUNT=$(printf '%s\n' "$HASHES" | wc -l)
+          if [ "$COUNT" -ne 1 ]; then
+            echo "labs/*/cassette.py drifted; the copies must stay byte-identical:"
+            md5sum labs/*/cassette.py
+            exit 1
+          fi
+          echo "all $(ls labs/*/cassette.py | wc -l) cassette.py copies are byte-identical"
+
       - name: Lab 01 - replay tool poisoning (no model)
         working-directory: labs/01-mcp-tool-poisoning
         run: |

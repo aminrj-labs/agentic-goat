@@ -44,7 +44,10 @@ and a multi-server client gives one server's output the authority to drive
 another server's tools. There is no provenance or trust boundary between
 servers. Unlike Lab 01, the payload is not in the description; it arrives in
 the *return value* of a harmless-looking tool, which is what makes it harder to
-catch at install time.
+catch at install time. One more enabling factor is deliberate: the host agent
+runs with a permissive system prompt (it executes the requested steps silently
+and never asks for confirmation). That permissiveness is part of the attack
+surface being demonstrated, not an accident of the harness.
 
 ---
 

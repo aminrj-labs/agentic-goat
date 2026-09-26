@@ -2,7 +2,7 @@
 verify_setup.py — Pre-flight checks for the Agentic Memory Attacks lab.
 
 Validates:
-  1. Local LLM endpoint reachable (Ollama :11434 by default, or LM Studio :1234 via LLM_BASE_URL) with at least one model loaded
+  1. Local LLM endpoint reachable (Ollama :11434 by default, or LM Studio via LLM_BASE_URL) with at least one model loaded
   2. LLM inference produces a coherent response
   3. Memory store read/write round-trip
   4. Fixture files present
@@ -44,7 +44,7 @@ def check_lm_studio() -> bool:
 
         if not ids:
             print(f"{FAIL} LM Studio reachable but no models are loaded.")
-            print("       Fix: Open LM Studio → load an instruction-tuned model → enable server (port 1234)")
+            print("       Fix: Open your LLM backend, load an instruction-tuned model, and enable the server")
             return False
 
         print(f"  Models loaded: {ids}")
@@ -64,8 +64,8 @@ def check_lm_studio() -> bool:
         return True
 
     except Exception as exc:
-        print(f"{FAIL} Cannot reach LM Studio: {exc}")
-        print("       Fix: Open LM Studio → load a model → enable server (port 1234)")
+        print(f"{FAIL} Cannot reach the local LLM endpoint: {exc}")
+        print("       Fix: Open your LLM backend, load a model, and enable the server")
         return False
 
 
