@@ -10,8 +10,9 @@ and the [OWASP MCP Top 10](https://owasp.org/www-project-mcp-top-10/). From a
 single poisoned tool description to a five-stage multi-agent kill chain, every
 attack is paired with the defense that stops it.
 
-Everything runs on your own machine against a local model. **No cloud APIs, no
-API keys, no data leaves your laptop.**
+The labs run on your own machine against a local model. **No cloud APIs, no
+API keys, and in a local run no data leaves your laptop.** The Killercoda and
+Codespaces tiers run the same code in a sandboxed environment instead.
 
 > **Not an OWASP project.** AgenticGoat is mapped to the OWASP Top 10 for
 > Agentic Applications, the OWASP MCP Top 10, and [MITRE ATLAS](https://atlas.mitre.org/)
@@ -82,6 +83,9 @@ and understand the controls that defeat them. Vendor-neutral by design: no lab
 routes you to a product, and the scenario that matters most ([Lab 07])
 demonstrates the control that breaks the chain, not a tool that sells it.
 
+New to agentic AI security? Read [BEGINNERS.md](./BEGINNERS.md) first: the
+terms, the lab pattern, and your first run in plain words.
+
 ---
 
 ## Labs
@@ -98,6 +102,17 @@ demonstrates the control that breaks the chain, not a tool that sells it.
 | 07 | [MCP to A2A Kill Chain](./labs/07-mcp-to-a2a-kill-chain/) | **Flagship.** Five-stage chain across the MCP to A2A trust boundary: tool poisoning, rogue A2A registration, routing hijack, lateral movement, persistence after server removal. Each of three controls provably breaks it at a specific stage. | Model-independent | Complete |
 
 ---
+
+## How a lab works
+
+Every lab has the same four-part shape, so one lab teaches you to read them all:
+
+1. **A canary is planted.** A synthetic secret, a flag such as `AGENTICGOAT{...}`, lives inside the vulnerable target: a note, an env var, a memory entry.
+2. **The attack runs.** A poisoned tool description, document, memory entry or message tricks the agent into reading the canary and sending it to an attacker listener on `localhost`.
+3. **Success is observable.** The attack succeeded if and only if the canary reaches the listener. A benign run never delivers it.
+4. **A control stops it.** The lab's defense is switched on and the same attack is rerun, and it fails.
+
+Two run modes cover the rest. **Live** points the agent at your own local model (Ollama or LM Studio). **Replay** plays back a cassette of the model's recorded tool calls, so the side effects run without a model. The cassettes shipped today are labelled `"status": "placeholder"`: replay exercises the live plumbing, but the flag is not delivered until a real capture is recorded. Lab 07 is model-independent and needs neither.
 
 ## Try it in your browser
 
@@ -212,6 +227,7 @@ make test       # proves the above
 
 ```
 README.md              # paragraph + crosswalk + "Try it in your browser"
+BEGINNERS.md           # plain-words intro: terms, the lab pattern, first run
 LINEAGE.md             # seeded from mcp-attack-labs, divergence policy
 CONTRIBUTING.md        # requires the scenario contract, a model class, honest status
 INVENTORY.md           # v1 baseline (entry points, deps, success signals)
