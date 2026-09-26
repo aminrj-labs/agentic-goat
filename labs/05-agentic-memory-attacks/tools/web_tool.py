@@ -2,15 +2,17 @@
 web_tool.py — Simulated web fetch using local fixture files.
 
 For known documentation URLs, returns the contents of a fixture file so the
-lab works entirely offline.  For any other URL (including the attacker's
-exfil endpoint), makes a real HTTP GET request — this is the deliberate
-attack surface that Attack 1 exploits.
+lab works entirely offline.  For localhost URLs, makes a real HTTP GET
+request: the lab confines network egress to localhost, and the attacker's
+exfil listener sits on localhost:9999, so Attack 1 still works.  Any
+non-localhost URL is refused.
 
 The use_poisoned flag routes API documentation requests to the compromised
 fixture used by Attack 3.
 """
 
 import os
+import urllib.parse
 
 import httpx
 
@@ -36,7 +38,8 @@ class WebTool:
         """Fetch a URL.
 
         Returns fixture content for known docs URLs; makes a real HTTP GET
-        for all other URLs (enabling exfil via crafted GET requests).
+        for localhost URLs (enabling exfil via crafted GET requests to the
+        local listener); refuses non-localhost URLs.
         """
         # Attack 3: redirect API docs to poisoned fixture when flag is set
         if self.use_poisoned and "docs.example.com" in url:
@@ -50,7 +53,12 @@ class WebTool:
         if "docs.example.com" in url:
             return self._read_fixture("api_docs_clean.txt")
 
-        # Real HTTP GET for all other URLs — this enables Attack 1's exfil
+        # Real HTTP GET for localhost URLs only — the lab confines egress to
+        # localhost, which is where Attack 1's exfil listener lives.
+        parsed = urllib.parse.urlsplit(url)
+        if parsed.hostname not in ("localhost", "127.0.0.1", "::1"):
+            return f"[WebTool] Refused: only localhost is reachable in this lab ({url})"
+
         try:
             resp = httpx.get(url, timeout=5.0, follow_redirects=True)
             body = resp.text

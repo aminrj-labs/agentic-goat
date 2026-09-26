@@ -14,7 +14,7 @@ from mcp.client.stdio import stdio_client
 from openai import OpenAI
 
 LM_STUDIO_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
-DEFAULT_MODEL = "qwen2.5-7b-instruct"
+DEFAULT_MODEL = os.getenv("MODEL", "qwen2.5-7b-instruct")
 DEFAULT_MAX_TURNS = 6
 DEFAULT_SYSTEM_PROMPT = (
     "You are a helpful assistant connected to multiple MCP servers. "
@@ -135,7 +135,7 @@ async def run_agent(
     cassette=None,
     defense: str | None = None,
 ) -> str:
-    llm = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key="lm-studio")
+    llm = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key=os.getenv("API_KEY", "lm-studio"))
     if cassette is not None:
         selected_model = model or DEFAULT_MODEL
     else:

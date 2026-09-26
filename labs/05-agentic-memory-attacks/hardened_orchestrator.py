@@ -35,7 +35,7 @@ _LM_STUDIO_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
 def _detect_context_limit() -> int:
     try:
         from openai import OpenAI
-        client = OpenAI(base_url=_LM_STUDIO_URL, api_key="lm-studio")
+        client = OpenAI(base_url=_LM_STUDIO_URL, api_key=os.getenv("API_KEY", "lm-studio"))
         models = client.models.list().data
         if models:
             ctx = getattr(models[0], "context_length", None)

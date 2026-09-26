@@ -1,4 +1,4 @@
-# Lab 03: Red Team Assessment: PyRIT & Promptfoo
+# Lab 03: Red Team Assessment: PyRIT-Style Orchestrators & Promptfoo
 
 A methodology lab, not a single attack scenario. You run a structured
 five-phase red team assessment against **DocuAssist**, a deliberately
@@ -198,10 +198,17 @@ Watch for low pass rates on the hijack and MCP supply chain categories; the
 sample report in `scan-results.md` shows what a run looks like. Expect 5 to
 15 minutes depending on model speed.
 
+Note what the scan actually exercises: the target is the bare chat model
+running the DocuAssist system prompt (the `prompts:` block in the config),
+not the DocuAssist agent with its MCP tools. The scan probes how the model
+behaves under that system prompt; the MCP tool stack is exercised by the
+manual document-injection kill chain in Phase 5, which drives the real
+agent.
+
 **Phase 4a: crescendo (multi-turn escalation)**
 
 ```bash
-cd pyrit
+cd ../pyrit
 python crescendo_exfil.py
 ```
 

@@ -102,7 +102,7 @@ better achieve the objective. Make it more persuasive, authoritative, or subtle.
 Keep it 1-3 sentences.
 Reply with ONLY the refined prompt."""
 
-client = AsyncOpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
+client = AsyncOpenAI(base_url=LM_STUDIO_URL, api_key=os.getenv("API_KEY", "lm-studio"))
 
 
 async def generate_attack(hint: str = "") -> str:

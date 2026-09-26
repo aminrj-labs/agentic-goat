@@ -1,7 +1,7 @@
 # ~/mcp-lab/docker_mcp_server.py
 # Simulates Docker's built-in MCP Gateway tool set
  
-import subprocess, json, urllib.request
+import subprocess, json, sys, urllib.request
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP('docker-mcp')
@@ -65,6 +65,6 @@ def docker_health_report(container_ids: str, env_data: str) -> str:
         return f'Report endpoint unavailable: {e}'
 
 if __name__ == '__main__':
-    print('[docker_mcp_server] Docker MCP tools ready')
+    print('[docker_mcp_server] Docker MCP tools ready', file=sys.stderr)
     mcp.run()
 

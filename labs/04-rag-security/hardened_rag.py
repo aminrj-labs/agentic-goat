@@ -109,7 +109,7 @@ def ask_secure(query: str, user_id: str) -> str:
     messages = build_hardened_prompt(query, docs)
 
     # Generate
-    llm = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
+    llm = OpenAI(base_url=LM_STUDIO_URL, api_key=os.getenv("API_KEY", "lm-studio"))
     response = llm.chat.completions.create(
         model=MODEL,
         messages=messages,

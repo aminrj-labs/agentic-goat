@@ -54,7 +54,7 @@ AVAILABLE TOOLS:
 
 def _detect_model() -> str:
     try:
-        client = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
+        client = OpenAI(base_url=LM_STUDIO_URL, api_key=os.getenv("API_KEY", "lm-studio"))
         models = client.models.list().data
         if models:
             return models[0].id
@@ -221,7 +221,7 @@ class Orchestrator:
         self.history: list  = []
         self.turn_count     = 0
 
-        self.client = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
+        self.client = OpenAI(base_url=LM_STUDIO_URL, api_key=os.getenv("API_KEY", "lm-studio"))
         self.model  = _MODEL
 
         if _CASSETTE is not None:

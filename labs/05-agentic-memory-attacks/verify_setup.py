@@ -38,7 +38,7 @@ def check_lm_studio() -> bool:
     _header("Check 1 — LM Studio connectivity")
     try:
         from openai import OpenAI
-        client = OpenAI(base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"), api_key="lm-studio")
+        client = OpenAI(base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"), api_key=os.getenv("API_KEY", "lm-studio"))
         models = client.models.list()
         ids    = [m.id for m in models.data]
 
@@ -75,7 +75,7 @@ def check_inference() -> bool:
     _header("Check 2 — LLM inference (quick round-trip)")
     try:
         from openai import OpenAI
-        client = OpenAI(base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"), api_key="lm-studio")
+        client = OpenAI(base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"), api_key=os.getenv("API_KEY", "lm-studio"))
         models = client.models.list().data
         model  = models[0].id if models else "qwen2.5-7b-instruct"
 
@@ -102,7 +102,7 @@ def check_function_calling() -> bool:
     _header("Check 3 — Function calling (tool-use API)")
     try:
         from openai import OpenAI
-        client = OpenAI(base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"), api_key="lm-studio")
+        client = OpenAI(base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"), api_key=os.getenv("API_KEY", "lm-studio"))
         models = client.models.list().data
         model  = models[0].id if models else "qwen2.5-7b-instruct"
 

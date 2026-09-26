@@ -47,7 +47,8 @@ it is the "when I read ASI03, there is a Goat scenario waiting" crosswalk.
 | The chain | Full MCP-to-A2A kill chain | Five stages, one control breaks it ([Lab 07](./labs/07-mcp-to-a2a-kill-chain/), flagship) | Complete |
 
 [Lab 03](./labs/03-red-team-assessment/) is a methodology lab (automated red
-teaming with PyRIT and Promptfoo) rather than a single mapped scenario. It
+teaming with PyRIT-style orchestrators and Promptfoo) rather than a single
+mapped scenario. It
 exercises several rows of this map against one target and is listed in the lab
 table below.
 
@@ -95,7 +96,7 @@ terms, the lab pattern, and your first run in plain words.
 | 01 | [MCP Tool Poisoning](./labs/01-mcp-tool-poisoning/) | Hidden instructions in an MCP tool description, silent file read and exfiltration | Model-dependent (replay available) | Complete |
 | 01b | [Cross-Server Shadowing](./labs/01b-cross-server-shadowing/) | One MCP server's tool result "shadows" another server's tool to hijack it | Model-dependent | Partial |
 | 02 | [DockerDash](./labs/02-docker-dash/) | Prompt injection via Docker image labels, container destruction and inventory exfil | Model-dependent (replay available) | Complete |
-| 03 | [Red Team Assessment](./labs/03-red-team-assessment/) | Automated agentic red-teaming with PyRIT and Promptfoo (crescendo exfil, TAP tool abuse) | Model-dependent (methodology) | Complete |
+| 03 | [Red Team Assessment](./labs/03-red-team-assessment/) | Automated agentic red-teaming with PyRIT-style orchestrators and Promptfoo (crescendo exfil, TAP tool abuse) | Model-dependent (methodology) | Complete |
 | 04 | [RAG Security](./labs/04-rag-security/) | Knowledge-base poisoning, indirect prompt injection, cross-tenant data leakage | Model-dependent (replay available) | Complete |
 | 05 | [Agentic Memory Attacks](./labs/05-agentic-memory-attacks/) | Persistent memory poisoning, cross-agent trust abuse, context-window overflow | Model-dependent (replay available) | Complete |
 | 06 | [Cross-Server MCP Poisoning](./labs/06-ASI02-cross-server-mcp-poisoning/) | One malicious MCP server steers the agent into abusing a second, trusted server | Model-dependent (replay available) | Complete |

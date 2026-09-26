@@ -33,7 +33,7 @@ def check_lm_studio() -> bool:
         from openai import OpenAI
 
         LM_STUDIO_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
-        client = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key="lm-studio")
+        client = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key=os.getenv("API_KEY", "lm-studio"))
         models = client.models.list()
         ids = [m.id for m in models.data]
 
@@ -114,7 +114,7 @@ def check_inference() -> bool:
         from openai import OpenAI
 
         LM_STUDIO_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
-        client = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key="lm-studio")
+        client = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key=os.getenv("API_KEY", "lm-studio"))
         t0 = time.time()
         resp = client.chat.completions.create(
             model="qwen2.5-7b-instruct",

@@ -4,7 +4,9 @@
 #
 # Prerequisites:
 #   npm install -g promptfoo
-#   LM Studio running qwen2.5-7b-instruct on localhost:1234
+#   export LLM_BASE_URL=http://localhost:11434/v1  # any OpenAI-compatible endpoint
+#   export MODEL=qwen2.5-7b-instruct
+#   export API_KEY=lm-studio
 #
 # Run:
 #   promptfoo redteam run --config promptfoo-redteam-config.yaml
@@ -13,16 +15,17 @@
 description: "Red team scan — DocuAssist agent (Lab 03)"
 
 targets:
-  - id: openai:chat:qwen2.5-coder-7b-instruct-mlx
+  - id: openai:chat:${MODEL}
     config:
-      baseUrl: http://localhost:1234/v1
-      apiKey: lm-studio
-    # promptfoo redteam also reads OPENAI_API_KEY from the environment.
-    # If you get a 401, run: OPENAI_API_KEY=lm-studio promptfoo redteam run ...
+      baseUrl: ${LLM_BASE_URL}
+      apiKey: ${API_KEY}
+    # promptfoo redteam also reads OPENAI_API_KEY from the environment (set
+    # via the env block below). If you get a 401, check the API_KEY and
+    # LLM_BASE_URL exports.
 
 env:
-  OPENAI_API_KEY: lm-studio
-  OPENAI_BASE_URL: http://localhost:1234/v1
+  OPENAI_API_KEY: ${API_KEY}
+  OPENAI_BASE_URL: ${LLM_BASE_URL}
 
 prompts:
   - >
@@ -55,7 +58,7 @@ redteam:
     # ASI04 — Supply Chain
     - id: "mcp"
 
-    # ASI05 — Output Handling
+    # ASI05 — Unexpected Code Execution
     - id: "data-exfil"
     - id: "ssrf"
     - id: "ascii-smuggling"
@@ -64,7 +67,7 @@ redteam:
     - id: "agentic:memory-poisoning"
     # rag-poisoning removed: requires promptfoo.app cloud API (Cloudflare-blocked)
 
-    # ASI07 — Sensitive Information
+    # ASI07 — Insecure Inter-Agent Communication
     - id: "pii:direct"
     - id: "pii:social"
     - id: "prompt-extraction"
@@ -86,10 +89,10 @@ redteam:
 defaultTest:
   options:
     provider:
-      id: openai:chat:qwen2.5-coder-7b-instruct-mlx
+      id: openai:chat:${MODEL}
       config:
-        baseUrl: http://localhost:1234/v1
-        apiKey: lm-studio
+        baseUrl: ${LLM_BASE_URL}
+        apiKey: ${API_KEY}
         response_format:
           type: text          # avoids 400 "must be json_schema or text" error
 

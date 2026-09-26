@@ -301,7 +301,7 @@ def main() -> None:
     print("  ATTACK 4 — Context Window Overflow")
     print(SEP)
 
-    client = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
+    client = OpenAI(base_url=LM_STUDIO_URL, api_key=os.getenv("API_KEY", "lm-studio"))
     try:
         model = _detect_model(client)
         ctx   = _detect_context_limit(client, model)

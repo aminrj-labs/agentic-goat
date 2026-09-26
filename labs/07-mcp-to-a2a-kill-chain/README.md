@@ -237,7 +237,7 @@ python3 run_chain.py --llm
 ```
 
 `--llm` drives stage 1 against a real endpoint (`LLM_BASE_URL`,
-`LLM_MODEL`; Ollama default) so you can watch a real model follow the hidden
+`MODEL`; Ollama default) so you can watch a real model follow the hidden
 instruction. Stages 2 to 5 are identical with or without it.
 
 Reading the run, honestly:

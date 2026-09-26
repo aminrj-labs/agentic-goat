@@ -97,9 +97,9 @@ def llm_brain(tool_result: ToolResult) -> BrainDecision:
         return deterministic_brain(tool_result)
 
     base_url = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
-    model = os.getenv("LLM_MODEL", "qwen2.5-7b-instruct")
+    model = os.getenv("MODEL", "qwen2.5-7b-instruct")
     try:
-        client = OpenAI(base_url=base_url, api_key=os.getenv("LLM_API_KEY", "local"))
+        client = OpenAI(base_url=base_url, api_key=os.getenv("API_KEY", "local"))
         resp = client.chat.completions.create(
             model=model,
             temperature=0,

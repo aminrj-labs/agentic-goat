@@ -58,14 +58,14 @@ def reset_retrieval_log() -> None:
     RETRIEVAL_LOG.parent.mkdir(parents=True, exist_ok=True)
     RETRIEVAL_LOG.write_text("", encoding="utf-8")
 
-# Auto-detect whichever model is loaded in LM Studio; fall back to the default.
-# Override by setting the LM_STUDIO_MODEL env var: LM_STUDIO_MODEL=my-model python ...
+# Auto-detect whichever model is loaded in the local endpoint; fall back to the default.
+# Override by setting the MODEL env var: MODEL=my-model python ...
 def _detect_model() -> str:
-    env_model = os.environ.get("LM_STUDIO_MODEL", "")
+    env_model = os.environ.get("MODEL", "")
     if env_model:
         return env_model
     try:
-        _c = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
+        _c = OpenAI(base_url=LM_STUDIO_URL, api_key=os.getenv("API_KEY", "lm-studio"))
         models = _c.models.list().data
         if models:
             detected = models[0].id
@@ -180,7 +180,7 @@ def _complete(**kwargs):
 
 
 def _live_create(**kwargs):
-    llm = OpenAI(base_url=LM_STUDIO_URL, api_key="lm-studio")
+    llm = OpenAI(base_url=LM_STUDIO_URL, api_key=os.getenv("API_KEY", "lm-studio"))
     return llm.chat.completions.create(**kwargs)
 
 
