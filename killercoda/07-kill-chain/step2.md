@@ -29,7 +29,7 @@ You can also test each control individually:
 
 ```bash
 python3 run_chain.py --control card    # breaks at stage 2
-python3 run_chain.py --control authz   # breaks at stage 3
+python3 run_chain.py --control authz   # breaks at stage 4
 python3 run_chain.py --control blast   # breaks at stage 4
 ```
 

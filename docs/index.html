@@ -81,8 +81,10 @@
 <h1>MCP to A2A Kill Chain <span class="badge badge-yellow">Trace Viewer</span></h1>
 <p class="subtitle">
   Side-by-side attack and defended traces from Lab 07.
-  These are <strong>real, deterministic runs</strong> against the unmodified lab code --
-  no simulation, no model, no GPU.
+  Stages 2 to 5 are <strong>real, deterministic runs</strong> of the unmodified lab
+  control-plane code -- no model, no GPU. Stage 1 is a modelled injection
+  (a deterministic brain plays the compromised host; the real-model proof lives
+  in Labs 01 and 06).
 </p>
 
 <div class="legend">
@@ -262,11 +264,11 @@
   </div>
   <div class="viewer">
     <h3>Control 2: Authorization Policy</h3>
-    <p>Even if the rogue registered, the least-privilege policy only allows doc-assistant to call document.summarise and hr-agent to call hr.read. The rogue is not in any allow-list. <strong>Chain breaks at Stage 3.</strong></p>
+    <p>The least-privilege policy only allows doc-assistant to call document.summarise and hr-agent to call hr.read. The rogue is not in any allow-list: with this control alone, registration and entry-skill routing still succeed, but the sensitive skill is denied. <strong>Chain breaks at Stage 4.</strong></p>
   </div>
   <div class="viewer">
     <h3>Control 3: Circuit Breaker + Human-in-the-Loop</h3>
-    <p>The high-stakes skill hr.read requires human confirmation. The rogue cannot complete the exfiltration without a human approving. <strong>Chain breaks at Stage 4.</strong></p>
+    <p>The high-stakes skill hr.read requires human confirmation, so the rogue cannot complete the exfiltration without a human approving. A circuit breaker (threshold 3) also guards against delegation bursts: this chain makes only two routes, so the breaker never trips here -- it is a backstop, and human-in-the-loop is what breaks this chain. <strong>Chain breaks at Stage 4.</strong></p>
   </div>
   <div class="viewer">
     <h3>Combined</h3>

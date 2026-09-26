@@ -19,8 +19,9 @@ class Controls:
     # the registry refuses a card that does not chain to the trust anchor.
     require_signed_cards: bool = False
 
-    # Control 2 — authorize the action, not just the caller. Breaks Stage 3/4:
-    # a verified-but-unauthorised caller is denied the sensitive skill.
+    # Control 2 — authorize the action, not just the caller. Breaks Stage 4:
+    # registration and entry-skill routing stay open (Control 1 off), but the
+    # unauthorised caller is denied the sensitive skill.
     enforce_authorization: bool = False
 
     # Control 3 — contain the blast radius. Backstops Stage 4: a burst of

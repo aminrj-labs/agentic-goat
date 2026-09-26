@@ -1,22 +1,13 @@
-## Step 3: Run the test suite
+## What the scenario showed
 
-The pytest suite pins both the undefended and defended outcomes, and verifies that
-each single control breaks its own stage.
-
-```bash
-python3 -m pytest test_chain.py -v
-```
-
-**You should now see:**
-
-- All tests pass (exit code 0).
-- Tests confirm: undefended run exits 1 with HR data in exfil state.
-- Tests confirm: defended run exits 0 with empty exfil state.
-- Tests confirm: each single control (`card`, `authz`, `blast`) breaks its own stage.
-- Tests confirm: Stage 1 lands deterministically in all configurations.
-
-These tests are the same ones that run in CI on every push. They prove the kill chain
-is deterministic and the controls work exactly as specified.
+- Undefended, all five stages succeed: the poisoned tool description lands, the
+  rogue registers, work routes to it, it exfiltrates the HR record and the flag,
+  and the registration survives removal of the malicious server. Exit code 1.
+- With all controls on, the chain breaks at stage 2 (exit code 0) and the exfil
+  sink is empty. Each control alone breaks a different stage: card at 2, authz
+  and blast at 4.
+- The test suite you ran in step 3 pins all of that, and the same tests run in
+  CI on every push.
 
 ---
 

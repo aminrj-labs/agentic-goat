@@ -58,7 +58,7 @@ question a defender is actually asking: if I turn this on, what stops?
 |---|---|---|---|
 | Verify the card, authenticate the channel | `--control card` | Stage 2 | The rogue can mint a well-formed card but cannot sign it against the trust anchor, so registration is refused; an unregistered peer cannot route, so stages 3 to 5 collapse too |
 | Authorize the action, not just the caller | `--control authz` | Stage 4 | Registration and routing stay open, but the rogue is in nobody's allow-list, so the sensitive skill is denied. This is the control that survives an agent being genuinely trusted but overreaching, not merely impersonated |
-| Contain the blast radius | `--control blast` | Stage 4 | The high-stakes skill pauses for human confirmation instead of executing on the rogue's say-so; a delegation burst trips a circuit breaker |
+| Contain the blast radius | `--control blast` | Stage 4 | The high-stakes skill pauses for human confirmation instead of executing on the rogue's say-so. The circuit breaker (threshold 3) is a backstop against delegation bursts: this chain makes only two routes, so the breaker never trips here and human-in-the-loop is what breaks the chain |
 | All three | `--defended` | Stage 2 | Defence in depth; the earliest control wins, the rest are backstops |
 
 ```bash
@@ -270,7 +270,9 @@ The three controls, and why each holds:
   for human confirmation, and a burst of delegations from one caller trips a
   circuit breaker. Even when registration and routing both succeed, the
   sensitive action does not execute, and a cascade that starts anyway is cut
-  off at a threshold instead of propagating.
+  off at a threshold instead of propagating. In this five-stage chain the
+  breaker never trips (two routes, threshold 3): it is the backstop, and
+  human-in-the-loop is what stops this chain.
 - **Defence in depth (`--defended`).** Run all three and the chain breaks at
   the earliest trust decision (stage 2) with the others as backstops.
 
